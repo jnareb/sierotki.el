@@ -1,12 +1,12 @@
 ;;; sierotki.el --- Introduce tildes after single-letter words
 
-;; Copyright (C) 2002  Micha³ Jankowski, Jakub Narêbski
+;; Copyright (C) 1999-2003  Micha³ Jankowski, Jakub Narêbski
 
 ;; Author: 	Ryszard Kubiak   <rysiek@ipipan.gda.pl>
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.5.2
+;; Version: 	2.5.3
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -37,8 +37,25 @@
 
 ;;}}}
 
-
 ;;; Installation:
+
+;; To use this package, put the following line in your .emacs:
+;;
+;;    (require 'sierotki)
+;;
+;; If you do not want to load this package before it is necessary, you 
+;; can make use of the `autoload' feature, e.g. adding to your .emacs 
+;; the following lines
+;;
+;;    (autoload 'tex-magic-space-mode "sierotki"
+;;              "TeX Magic Space minor mode" t)
+;;    (define-key mode-specific-map " " 'tex-magic-space-mode)
+;;
+;; Then after turning on `tex-magic-space-mode' via `C-c SPC' 
+;; the whole package will be loaded.  Attention: using autoload means
+;; that this mode _won't_ be turned on automatically in LaTeX modes.
+
+;;; Installation[pl]:
 
 ;; Aby u¿yæ tego pakietu, umie¶æ nastêpuj±c± linijkê w swoim pliku .emacs
 ;;
@@ -58,6 +75,37 @@
 
 
 ;;; Commentary:
+
+;; The purpose of this package is to connect some defined words (by default
+;; one letter Polish prepositions) with the following words by tilde, which
+;; is the non-breakable space in TeX.  This is needed to avoid one letter
+;; prepositions at line endings in TeX documents, which is required by
+;; the Polish and Czech ortography/typography rules.
+;;
+;; This program serves two purposes.  First of them is to check the text
+;; and suggest adding missing tildes in some places.  This function is
+;; implemented in `tex-hard-spaces' via `query-replace-regexp'.  It is
+;; provided for convenience only to have both functionalities in the
+;; same module.  More elaborated implementation can be found in the
+;; `tildify' package which is part of GNU Emacs (ATTENTION: default
+;; variable settings in the tildify package are suited for Czech
+;; language, those here are for Polish).
+;;
+;; The second purpose is the automatic, in-the-fly insertion of tildes
+;; after one letter prepositions during writing.  It is implemented
+;; via the `tex-magic-space' command which is a kind of electric space
+;; and should be bound to SPC to work.  To activate this functionality
+;; you have to turn on `tex-magic-space-mode'.  The minor mode TeX Magic
+;; Space can be turned on from the modeline minor mode menu.  This mode
+;; is denoted by " ~" in the modeline.
+;;
+;; The TeX Magic Space mode is automatically turned on in the TeX modes
+;; by adding the equivalent of `turn-on-tex-magic-space-mode' to the
+;; hooks defined in the variable `tex-magic-space-mode-hooks-list'.
+
+;; Documentation and comments: Jakub Narêbski.
+
+;;; Commentary[pl]:
 
 ;; Ten pakiet s³u¿y do dowi±zywania zdefiniowanych wyrazów (domy¶lnie
 ;; jednoliterowych spójników) do nastêpuj±cych po nich s³ów za pomoc± znaku
@@ -91,13 +139,20 @@
 
 ;;; Notes:
 
+;; Turning on and activation the `tex-magic-space-texmathp' advice or its
+;; equivalent (with the standard configuration for `texmathp') makes
+;; `tex-magic-space' around 10 times slower
+;; (measured using "elp" package).
+
+;;; Notes[pl]:
+
 ;; W³±czanie i aktywacja porady `tex-magic-space-texmathp', lub jej
 ;; odpowiednika (ze standardowymi warto¶ciami zmiennych dla `texmathp')
 ;; powoduje oko³o 10-krotne zwolnienie dzia³ania `tex-magic-space'
 ;; (zmierzono za pomoca pakietu "elp").
 
 
-;;; To do:
+;;; To do[pl]:
 
 ;; TO DO: Ulepszyæ wyra¿enie regularne b±d¼ daæ do wyboru wersjê prost±
 ;; (i szybk±) lub skomplikowan± (i mog±c± wiêcej).  Byæ mo¿e wyra¿enie
@@ -120,7 +175,13 @@
 ;;
 ;; Zawarto¶æ "History:" nie jest kompletna.
 
+
 ;;; History:
+
+;; There is no "History:" section in English because all references 
+;; are in Polish.
+
+;;; History[pl]:
 
 ;; Kod `tex-hard-spaces' pojawi³ siê po raz pierwszy w:
 ;;
@@ -163,6 +224,15 @@
 
 
 ;;; Change Log:
+
+;; Version 2.3 (RCS revision 1.12):
+;; * TeX Magic Space minor mode (bound to `C-c SPC')
+;; Version 2.4 (RCS revision 1.22):
+;; * Added checking if the `tex-magic-space' should be active or not
+;;   (e.g. it should be inactive in math mode detected using `texmathp').
+;;   It was implemented using advices.
+
+;;; Change Log[pl]:
 
 ;; Version 2.3 (RCS revision 1.12):
 ;; * Pojawi³ siê TeX Magic Space minor mode (przypisany do `C-c SPC').
