@@ -6,7 +6,7 @@
 ;;	Jakub Narebski <jnareb@fuw.edu.pl>
 ;;	Adam P. <adamp_at@at_ipipan.waw.pl>
 ;; Maintainer: Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 2.1.1
+;; Version: 2.2
 ;; Keywords: tex, wp
 ;; Created: 03-11-1999
 
@@ -48,58 +48,59 @@
 ;;; Ten plik/pakiet definiuje tylko dwie zmienne i trzy funkcje.
 ;;; Dokumentacja i komentarze: Jakub Narêbski.
 
-;; TO DO: Zrobiæ wolniejsz± wersjê `tex-magic-space', która bêdzie
-;;        np. sprawdza³a czy jeste¶my w trybie matematycznym tak jak
-;;        `TeX-insert-dollar' za pomoc± `texmathp' z AUCTeX-a.
-
-;; IDEA: `texmathp' jest dostêpne tylko w AUC TeX-u (standardowe tex-mode.el
-;; dostêpne z Emacsem nie zawiera AFAIK podobnego makra).  Jest ono zdefiniowane
-;; w texmathp, autoloaded.  Chcemy by `tex-magic-space' dzia³a³o zarówno w
-;; standardowym `tex-mode'/`latex-mode', jak i w AUC TeX-owym
-;; `TeX-mode'/`LaTeX-mode', przy czym w tym drugim chcemy mieæ mo¿liwo¶æ
-;; skorzystania z `texmathp' , w tym pierwszym ewentualnie sprawdzaæ (podobnie
-;; jak w `comment-beginning') czy u¿ywamy `tex-math-face' co siê sprawdza
-;; przynajmniej w $$ ... $$ i $ ... $.  Mo¿na by to zrobiæ u¿ywaj±c porady
-;; (advice) i dodaj±c aktywacjê/deaktywacjê tej porady do
-;; `TeX-mode-hook'/`LaTeX-mode-hook' (w ka¿dym razie próbuj±c j± aktywowaæ przy
-;; w³±czaniu odpowiedniego trybu, deaktywuj±c przy jego wy³±czaniu; np. za
-;; pomoc± `eval-after-load').  Funkcja która by aktywowa³a/deaktywowa³a poradê
-;; powinna u¿ywaæ `featurep' by sprawdziæ, czy zosta³ za³adowany AUCTeX
-;; (tex-site, latex, tex; texmathp.el nie dostarcza ¿adnej cechy (feature)); lub
-;; `require' z parametrem NOERROR, sprawdzaj±c czy uda³o siê za³adowaæ plik.
-;; Ewentualnie mo¿na by u¿ywaæ `texmathp' (które jest automatycznie ³adowane
-;; je¶li AUCTeX jest zainstalowany) wewn±trz "pu³apki" `condition-case' lub
-;; `unwind-protect', z czego oba rozwi±zania umo¿liwiaj± skorzystanie ze
-;; sprawdzania `tex-math-face' je¶li `texmathp' jest niedostêpne.  
-
-;; PRZYK£AD (testowy):
-;; (defun test-math ()
-;;   (interactive)
-;;   (condition-case err
-;;       (and (texmathp)
-;; 	   (message "Why: %s" (princ texmathp-why))
-;; 	   (message "Face: %s" (princ (get-text-property (point) 'face))))
-;;     ;; This is the handler; it is not a form
-;;     (error (princ (format "The error was: %s\n" err))
-;; 	   nil)))
-
-;; UWAGA: Ró¿ne pliki ró¿nie definiuj± font (face) dla trybu matematycznego:
-;; * AUCTeX: font-latex.el:  font-latex-math-face (LaTeX math expressions)
-;; * AUCTeX: hilit-LaTeX.el: w³asne funkcje, u¿ywa hilit19
-;; * AUCTeX: tex-font.el:    tex-math-face (TeX math expressions)
-;; * Emacs:  tex-mode.el:    tex-math-face (TeX math expressions)
-;; ale mo¿na u¿ywaæ `tex-math-face'.
-
-;; Mo¿na tak¿e sprawdzaæ czy jeste¶my w komentarzu u¿ywaj±c kodu jak w
-;; `comment-beginning', t.j. sprawdzaj±c czy u¿ywamy `font-lock-comment-face' i
-;; ewentualnie szukaj±c znaku komentarza `%' w bie¿±cej linii na lewo od
-;; bie¿±cej pozycji (`point').
-
 
 ;;; Notes[pl]:
 
-;;; 1. Dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
-;;; 2. `tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
+;;; TO DO: Zrobiæ wolniejsz± wersjê `tex-magic-space', która bêdzie
+;;;        np. sprawdza³a czy jeste¶my w trybie matematycznym tak jak
+;;;        `TeX-insert-dollar' za pomoc± `texmathp' z AUCTeX-a.
+;;;
+;;; IDEA: `texmathp' jest dostêpne tylko w AUC TeX-u (standardowe tex-mode.el
+;;; dostêpne z Emacsem nie zawiera AFAIK podobnego makra).  Jest ono zdefiniowane
+;;; w texmathp, autoloaded.  Chcemy by `tex-magic-space' dzia³a³o zarówno w
+;;; standardowym `tex-mode'/`latex-mode', jak i w AUC TeX-owym
+;;; `TeX-mode'/`LaTeX-mode', przy czym w tym drugim chcemy mieæ mo¿liwo¶æ
+;;; skorzystania z `texmathp' , w tym pierwszym ewentualnie sprawdzaæ (podobnie
+;;; jak w `comment-beginning') czy u¿ywamy `tex-math-face' co siê sprawdza
+;;; przynajmniej w $$ ... $$ i $ ... $.  Mo¿na by to zrobiæ u¿ywaj±c porady
+;;; (advice) i dodaj±c aktywacjê/deaktywacjê tej porady do
+;;; `TeX-mode-hook'/`LaTeX-mode-hook' (w ka¿dym razie próbuj±c j± aktywowaæ przy
+;;; w³±czaniu odpowiedniego trybu, deaktywuj±c przy jego wy³±czaniu; np. za
+;;; pomoc± `eval-after-load').  Funkcja która by aktywowa³a/deaktywowa³a poradê
+;;; powinna u¿ywaæ `featurep' by sprawdziæ, czy zosta³ za³adowany AUCTeX
+;;; (tex-site, latex, tex; texmathp.el nie dostarcza ¿adnej cechy (feature)); lub
+;;; `require' z parametrem NOERROR, sprawdzaj±c czy uda³o siê za³adowaæ plik.
+;;; Ewentualnie mo¿na by u¿ywaæ `texmathp' (które jest automatycznie ³adowane
+;;; je¶li AUCTeX jest zainstalowany) wewn±trz "pu³apki" `condition-case' lub
+;;; `unwind-protect', z czego oba rozwi±zania umo¿liwiaj± skorzystanie ze
+;;; sprawdzania `tex-math-face' je¶li `texmathp' jest niedostêpne.  
+;;;
+;;; PRZYK£AD (testowy):
+;;; (defun test-math ()
+;;;   (interactive)
+;;;   (condition-case err
+;;;       (and (texmathp)
+;;; 	   (message "Why: %s" (princ texmathp-why))
+;;; 	   (message "Face: %s" (princ (get-text-property (point) 'face))))
+;;;     ;; This is the handler; it is not a form
+;;;     (error (princ (format "The error was: %s\n" err))
+;;; 	   nil)))
+;;;
+;;; UWAGA: Ró¿ne pliki ró¿nie definiuj± font (face) dla trybu matematycznego:
+;;; * AUCTeX: font-latex.el:  font-latex-math-face (LaTeX math expressions)
+;;; * AUCTeX: hilit-LaTeX.el: w³asne funkcje, u¿ywa hilit19
+;;; * AUCTeX: tex-font.el:    tex-math-face (TeX math expressions)
+;;; * Emacs:  tex-mode.el:    tex-math-face (TeX math expressions)
+;;; ale mo¿na u¿ywaæ `tex-math-face'.
+;;;
+;;; Mo¿na tak¿e sprawdzaæ czy jeste¶my w komentarzu u¿ywaj±c kodu jak w
+;;; `comment-beginning', t.j. sprawdzaj±c czy u¿ywamy `font-lock-comment-face' i
+;;; ewentualnie szukaj±c znaku komentarza `%' w bie¿±cej linii na lewo od
+;;; bie¿±cej pozycji (`point').
+
+
+;;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
+;;;`tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
 
 
 ;;; Code:
@@ -211,36 +212,22 @@ otherwise bind SPC to `self-insert-command'.
 It can be used to toggle temporarily `tex-magic-space' off when writing
 equations (with e.g. `i' as index), then turn it on in main text.
 
-Uses `current-local-map' or `current-local-map', so it currently works with 
-any mode, not only with LaTeX modes (there are several of them and they do not
-use one common keymap)."
+Uses local keymap i.e. major mode keymap, so it currently works with
+any mode, not only with LaTeX modes (there are several of them and
+they do not use one common keymap)."
   (interactive "P")	                ; Prefix arg w postaci surowej.  Nie robi I/O.
-  (let 
-    ((keymap				; mapa która bêdziemy modyfikowaæ
-      (or (current-local-map) (current-global-map)))) 
-    (progn			        ; u¿ywane tylko by wypisaæ komunikat
-      (cond
-       ((null arg)			; Brak prefiksu
-	(if (equal			
-	     (lookup-key keymap " ")	; sprawdzamy czy SPC jest przypisane ju¿
-	     'tex-magic-space)		; do `tex-magic-space' w keymap
-;;;     Wybierz jedn± z poni¿szych mo¿liwo¶ci
-;;;	    (substitute-key-definition 'tex-magic-space 'self-insert-command keymap)
-;;;	    (local-unset-key " ")) ; (define-key (current-local-map) " " nil)
-	    (define-key keymap " " 'self-insert-command)
-	  (define-key keymap " " 'tex-magic-space)))
-       ((> (prefix-numeric-value arg) 0) ; Dodatni argument
-	(unless (equal 
-		 (lookup-key keymap " ") ; sprawdzamy czy SPC nie jest przypisane ju¿
-		 'tex-magic-space)       ; do `tex-magic-space' w keymap
-	  (define-key keymap " " 'tex-magic-space)))
-	(t				; wpp (niedodatni argument)
-	 (when (equal 
-		(lookup-key keymap " ") ; sprawdzamy czy SPC jest przypisane ju¿
-		'tex-magic-space)       ; do `tex-magic-space' w keymap
-	   (define-key keymap " " 'self-insert-command))))
-      (message "SPC is bound to `%s'" (lookup-key keymap " "))
-      (describe-key-briefly " "))))
+  (progn			        ; u¿ywane tylko by wypisaæ komunikat
+    (cond
+     ((null arg)			; Brak prefiksu
+      (if (local-key-binding " " 'tex-magic-space)
+	  (local-unset-key " ")     
+	(local-set-key " " 'tex-magic-space)))
+     ((> (prefix-numeric-value arg) 0) ; Dodatni argument
+      (local-set-key " " 'tex-magic-space))
+     (t				; wpp (niedodatni argument)
+      (local-unset-key " ")))
+    ;; koniec cond; opisanie wyniku
+    (describe-key-briefly " ")))
 
 
 ;;;; ---------------------------------------------------------------------
@@ -263,7 +250,10 @@ use one common keymap)."
 ;; For tex-mode included in Emacs
 (eval-after-load "tex-mode" '(define-key tex-mode-map    " " 'tex-magic-space))
 ;; For RefTeX
-(eval-after-load "reftex"   '(define-key reftex-mode-map " " 'tex-magic-space))
+;; NOTE: RefTeX to minor mode, keymap zas³ania lokalny keymap
+;; (np. LaTeX-mode-keymap) i aby `tex-toggle-magic-space' dzia³a³o trzeba by
+;; jawnie u¿ywaæ `reftex-mode-map', a nie wiadomo czy RefTeX zosta³ za³adowany
+;(eval-after-load "reftex"   '(define-key reftex-mode-map " " 'tex-magic-space))
 
 ;; Aby mo¿na by³o ³adowaæ ten plik zarówno za pomoc± 
 ;; (load "sierotki")
