@@ -6,7 +6,7 @@
 ;;	Jakub Narebski <jnareb@fuw.edu.pl>
 ;;	Adam P. <adamp_at@at_ipipan.waw.pl>
 ;; Maintainer: Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 2.1
+;; Version: 2.1.1
 ;; Keywords: tex, wp
 ;; Created: 03-11-1999
 
@@ -48,6 +48,52 @@
 ;;; Ten plik/pakiet definiuje tylko dwie zmienne i trzy funkcje.
 ;;; Dokumentacja i komentarze: Jakub Narêbski.
 
+;; TO DO: Zrobiæ wolniejsz± wersjê `tex-magic-space', która bêdzie
+;;        np. sprawdza³a czy jeste¶my w trybie matematycznym tak jak
+;;        `TeX-insert-dollar' za pomoc± `texmathp' z AUCTeX-a.
+
+;; IDEA: `texmathp' jest dostêpne tylko w AUC TeX-u (standardowe tex-mode.el
+;; dostêpne z Emacsem nie zawiera AFAIK podobnego makra).  Jest ono zdefiniowane
+;; w texmathp, autoloaded.  Chcemy by `tex-magic-space' dzia³a³o zarówno w
+;; standardowym `tex-mode'/`latex-mode', jak i w AUC TeX-owym
+;; `TeX-mode'/`LaTeX-mode', przy czym w tym drugim chcemy mieæ mo¿liwo¶æ
+;; skorzystania z `texmathp' , w tym pierwszym ewentualnie sprawdzaæ (podobnie
+;; jak w `comment-beginning') czy u¿ywamy `tex-math-face' co siê sprawdza
+;; przynajmniej w $$ ... $$ i $ ... $.  Mo¿na by to zrobiæ u¿ywaj±c porady
+;; (advice) i dodaj±c aktywacjê/deaktywacjê tej porady do
+;; `TeX-mode-hook'/`LaTeX-mode-hook' (w ka¿dym razie próbuj±c j± aktywowaæ przy
+;; w³±czaniu odpowiedniego trybu, deaktywuj±c przy jego wy³±czaniu; np. za
+;; pomoc± `eval-after-load').  Funkcja która by aktywowa³a/deaktywowa³a poradê
+;; powinna u¿ywaæ `featurep' by sprawdziæ, czy zosta³ za³adowany AUCTeX
+;; (tex-site, latex, tex; texmathp.el nie dostarcza ¿adnej cechy (feature)); lub
+;; `require' z parametrem NOERROR, sprawdzaj±c czy uda³o siê za³adowaæ plik.
+;; Ewentualnie mo¿na by u¿ywaæ `texmathp' (które jest automatycznie ³adowane
+;; je¶li AUCTeX jest zainstalowany) wewn±trz "pu³apki" `condition-case' lub
+;; `unwind-protect', z czego oba rozwi±zania umo¿liwiaj± skorzystanie ze
+;; sprawdzania `tex-math-face' je¶li `texmathp' jest niedostêpne.  
+
+;; PRZYK£AD (testowy):
+;; (defun test-math ()
+;;   (interactive)
+;;   (condition-case err
+;;       (and (texmathp)
+;; 	   (message "Why: %s" (princ texmathp-why))
+;; 	   (message "Face: %s" (princ (get-text-property (point) 'face))))
+;;     ;; This is the handler; it is not a form
+;;     (error (princ (format "The error was: %s\n" err))
+;; 	   nil)))
+
+;; UWAGA: Ró¿ne pliki ró¿nie definiuj± font (face) dla trybu matematycznego:
+;; * AUCTeX: font-latex.el:  font-latex-math-face (LaTeX math expressions)
+;; * AUCTeX: hilit-LaTeX.el: w³asne funkcje, u¿ywa hilit19
+;; * AUCTeX: tex-font.el:    tex-math-face (TeX math expressions)
+;; * Emacs:  tex-mode.el:    tex-math-face (TeX math expressions)
+;; ale mo¿na u¿ywaæ `tex-math-face'.
+
+;; Mo¿na tak¿e sprawdzaæ czy jeste¶my w komentarzu u¿ywaj±c kodu jak w
+;; `comment-beginning', t.j. sprawdzaj±c czy u¿ywamy `font-lock-comment-face' i
+;; ewentualnie szukaj±c znaku komentarza `%' w bie¿±cej linii na lewo od
+;; bie¿±cej pozycji (`point').
 
 
 ;;; Notes[pl]:
