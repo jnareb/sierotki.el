@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.4-pre2
+;; Version: 	2.4-pre3
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	tex, wp
@@ -152,7 +152,7 @@
 
 ;;; W wyniku porównania z inn± implementacj± magicznej spacji (`spacja')
 ;;; z artyku³u "GNU Emacs Lisp" rzyjontka na debian.otwarte.pl
-;;; http://debian.otwarte.pl/article.php?aid=39 
+;;; http://debian.otwarte.pl/article.php?aid=39
 ;;; (w szczególno¶ci innego jej zachowania) powsta³o pytanie o to, jakie
 ;;; w³asno¶ci powinno mieæ `tex-magic-space'
 
@@ -166,7 +166,7 @@
 
 ;;; Change Log:
 
-;; Version 2.3 (RCS revision 1.12): 
+;; Version 2.3 (RCS revision 1.12):
 ;; * Pojawi³ siê TeX Magic Space minor mode.
 ;; Version 2.4
 ;; * Dodane porady i polecenie do ich w³±czana, aby `tex-magic-space'
@@ -275,7 +275,7 @@ See also: `tex-hard-spaces'"
 ;;; "Porady" (advices) dla `tex-magic-space'
 (eval-when-compile (require 'texmathp))
 
-;; IDEE: 
+;; IDEE:
 ;; a. `texmathp', udostêpniane (enable) po za³adowaniu "texmathp"
 ;; b. sprawdzanie czy font (face) nale¿y do okre¶lonej listy
 ;; c. zdefiniowana przez u¿ytkownika FORM (np. '(and FORM FORM))
@@ -283,15 +283,15 @@ See also: `tex-hard-spaces'"
 ;; (property) jest list± nale¿y przeiterowaæ po jej elementach (let ((idx
 ;; list)) (while idx ... (setq idx (cdr idx)))) ew. `dolist', lub u¿yæ
 ;; `intersection' z pakietu CL (Common Lisp)
-(defadvice tex-magic-space 
+(defadvice tex-magic-space
   (around tex-magic-space-texmathp (&optional prefix) preactivate)
-  "Inactive in math mode as defined by `texmathp'"
+  "Inactive in math mode as defined by `texmathp'."
   (interactive "p")
   (if (and (fboundp 'texmathp) (not (texmathp)))
       ;; jeste¶my poza trybem metametycznym albo `texmathp' nie istnieje
       ;; TO DO: uczyniæ tê poradê domy¶lnie nieaktywn± (disabled), aktywowaæ
       ;;        j± przy ³adowaniu texmathp za pomoc± `eval-after-load'
-      (prog1 
+      (prog1
 	  ad-do-it
 	(message "Default `tex-magic-space': '%c'" last-command-char))
     (message "Math mode detected: %s" (princ texmathp-why))
@@ -311,7 +311,7 @@ otherwise deactivate it.  Uses advice `tex-magic-space-texmathp'."
 		      (ad-activate 'tex-magic-space)))
 	((> (prefix-numeric-value arg) 0) (ad-activate 'tex-magic-space))
 	(t (ad-deactivate 'tex-magic-space)))
-  (message "Advices %sctivated." 
+  (message "Advices %sctivated."
 	   (if (ad-is-active 'tex-magic-space) "a" "dea")))
 ;; see also: `ad-is-active', `ad-is-advised', `ad-has-enabled-advice',
 ;;  `ad-get-enabled-advices', `ad-find-some-advice' and `ad-advice-enabled';       
@@ -400,7 +400,7 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 ;;;   - (:eval FORM), FORM jest obliczana i umieszczany wynik (Emacs 21)
 ;;;   - (STRING REST...), (LIST REST...), oblicz rekurencyjnie i po³±cz wyniki
 ;;;   - (SYMBOL THEN ELSE) lub (SYMBOL THEN), np. u¿ycie `minor-mode-alist'
-;;;   - (WIDTH REST...), dope³nione WIDTH spacjami je¶li WIDTH > 0, skrócony 
+;;;   - (WIDTH REST...), dope³nione WIDTH spacjami je¶li WIDTH > 0, skrócony
 ;;;     do -WIDTH kolumn je¶li WIDTH < 0; przyk³ad: (-3 "%p"), procent pliku
 ;;; * wiêkszo¶æ trybów "rêcznie" dodaje siê do modeline...
 
@@ -435,7 +435,7 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 ;;;(define-key mode-line-mode-menu
 ;;; (vector 'tex-magic-space-mode)
 ;;; ;; mo¿na by u¿yæ ` do "cytowania" (quote) tylko czê¶ci
-;;; (list 'menu-item "TeX Magic Space" 
+;;; (list 'menu-item "TeX Magic Space"
 ;;;		'tex-magic-space-mode
 ;;;		:visible '(memq major-mode '(latex-mode tex-mode))
 ;;;		:button   (cons :toggle tex-magic-space-mode)))
@@ -478,23 +478,18 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 ;; uruchamia siê tak¿e text-mode-hook (AUCTeX, tex-mode)
 
 ;; W³±cz TeX Magic Space mode dla znanych trybów (La)TeX-owych
-;; NOTE: u¿yj drugiej wersji i operatora cytowania w eval-after-load je¶li
-;;       twój Emacs nie rozumie `
-;; NOTE: zapewne `eval-after-load' nie jest w ogóle potrzebne
 (defmacro tex-magic-space-mode-add-to-hook (hook)
   "Add `(setq 'tex-magic-space-mode t)' to HOOK."
-  `(add-hook ,hook (function (lambda () (setq 'tex-magic-space-mode t)))))
-; (add-hook hook (function (lambda () (setq 'tex-magic-space-mode t)))))
-; (add-hook hook 'turn-on-tex-magic-space-mode)
+  `(add-hook ,hook (function (lambda () (setq tex-magic-space-mode t)))))
 
-;; For AUC TeX
-(eval-after-load "tex"      (tex-magic-space-mode-add-to-hook 'TeX-mode-hook))
-(eval-after-load "latex"    (tex-magic-space-mode-add-to-hook 'LaTeX-mode-hook))
+;; For AUC TeX (zapewne wystarczy 'TeX-mode-hook)
+(tex-magic-space-mode-add-to-hook 'TeX-mode-hook)
+(tex-magic-space-mode-add-to-hook 'LaTeX-mode-hook)
 ;; For tex-mode included in Emacs
-(eval-after-load "tex-mode" (tex-magic-space-mode-add-to-hook 'tex-mode-hook))
+(tex-magic-space-mode-add-to-hook 'tex-mode-hook)
 ;; For RefTeX
 ;; NOTE: W tej wersji jest to ca³kowicie bezpieczne
-(eval-after-load "reftex"   '(tex-magic-space-mode-add-to-hook 'reftex-mode-hook))
+(tex-magic-space-mode-add-to-hook 'reftex-mode-hook)
 
 
 ;;;; ======================================================================
