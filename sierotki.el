@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.4.3
+;; Version: 	2.4.3-multiadvice-1
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -76,7 +76,6 @@
 ;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest
 ;; ona implementowana przez komendê `tex-magic-space', któr± nale¿y
 ;; podpi±æ do spacji.  Do aktywowania tej funkcjonalno¶ci mo¿na u¿yæ
-;; `tex-toggle-magic-space', albo (co jest bezpieczniejsze)
 ;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na
 ;; aktualnie w³±czyæ z modeline dla trybów g³ównych (major mode)
 ;; `latex-mode' lub `tex-mode'; jest on oznaczany za pomoc± " ~".
@@ -118,7 +117,6 @@
 ;;
 ;;
 ;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
-;; `tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
 ;;
 ;; Zawarto¶æ "History:" nie jest kompletna.
 
@@ -208,8 +206,7 @@ It can be used to bind single-letter conjunction to the word following it in
 the existing text, using `~' (the TeX non-breakable space), so there are no
 single-letter conjunctions at the end of the line (known as 'orphans').
 
-For on-the-fly 'tildification' bind SPC to `tex-magic-space' using
-\\[tex-toggle-magic-space], or turn on TeX Magic Space minor mode using
+For on-the-fly 'tildification' turn on TeX Magic Space minor mode using
 command \\[tex-magic-space-mode].
 
 It is implemented using `query-replace-regexp'."
@@ -263,9 +260,8 @@ Works with abbrev expansion with the following exceptions:
 
 Should not be used directly.
 
-Bind it to space using `tex-toggle-magic-space' (\\[tex-toggle-magic-space])
-or turn on TeX Magic Space minor mode using command `tex-magic-space-mode'
-\(\\[tex-magic-space-mode]).
+To use it turn on TeX Magic Space minor mode using command 
+`tex-magic-space-mode' (\\[tex-magic-space-mode]).
 
 See also: `tex-hard-spaces'"
   (interactive "p")	               ; Prefix arg jako liczba.  Nie robi I/O.
@@ -541,56 +537,6 @@ See also: `tex-magic-space-texmathp', `tex-magic-space-face',
 ;; sprawdziæ jak siê porada nazywa za pomoc± `ad-advice-name' i czy jest
 ;; w³±czona za pomoc± `ad-advice-enabled'.
 
-
-
-;;; ----------------------------------------------------------------------
-;;; Toggle magic space by Jakub Narêbski <jnareb@fuw.edu.pl>,
-;;; modifications based on code by Adam P. <adamp_at@at_ipipan.waw.pl>
-
-;; Przypisuje/wy³±cza przypisanie tex-magic-space do spacji,
-;; (przydatne przy pisaniu matematyki)
-;;;###autoload
-(defun tex-toggle-magic-space (&optional arg)
-  "Toggle whether SPC is bound to `tex-magic-space'.
-With prefix argument ARG, bind SPC to `tex-magic-space' if ARG is positive,
-otherwise bind SPC to `self-insert-command'.
-
-It can be used to toggle temporarily `tex-magic-space' off when writing
-equations (with e.g. `i' as index), then turn it on in main text.
-
-Uses local keymap i.e. major mode keymap, so it currently works with
-any mode, not only with LaTeX modes (there are several of them and
-they do not use one common keymap).
-
-See also command `tex-magic-space-mode' for an alternative way to use
-`tex-magic-space'."
-  (interactive "P")	                ; Prefix arg w postaci surowej.  Nie robi I/O.
-  (let (space-binding
-	local-space-binding)
-    (cond
-     ((null arg)			; brak prefiksu
-      (if (local-key-binding " " 'tex-magic-space)
-	  (local-unset-key " ")
-	(local-set-key " " 'tex-magic-space)))
-     ((> (prefix-numeric-value arg) 0) ; dodatni prefiks
-      (local-set-key " " 'tex-magic-space))
-     (t					; wpp (niedodatni prefiks)
-      (local-unset-key " ")))
-    ;; koniec cond; opisanie wyniku
-    (setq space-binding       (key-binding " "))
-    (setq local-space-binding (local-key-binding " "))
-    (message "%s runs the command %s%s"
-	     (key-description " ")
-	     space-binding
-	     ;; obs³uga przypadku gdy ta funkcja "nie dzia³a"
-	     (if (or (and (null local-space-binding)
-			  (eq space-binding 'self-insert-command))
-		     (eq (key-binding " ") (local-key-binding " ")))
-		 ""
-	       (format "; locally bound to %s" (local-key-binding " ")))
-	     ;; IDEA: mo¿na u¿yæ minor-mode-key-binding do sprawdzenia
-	     ;; w jakim trybie zosta³a zdefiniowana spacja.
-	     )))
 
 
 ;;;; ======================================================================
