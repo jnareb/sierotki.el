@@ -6,10 +6,10 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.4.0
+;; Version: 	2.4.1
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
-;; Keywords: 	TeX, wp
+;; Keywords: 	TeX, wp, convenience
 ;; Created: 	03-11-1999
 ;; URL: 	http://www.fuw.edu.pl/~jnareb/sierotki.el
 ;;
@@ -37,137 +37,153 @@
 
 ;;}}}
 
+
+;;; Installation:
+
+;; Aby u¿yæ tego pakietu, umie¶æ nastêpuj±c± linijkê w swoim pliku .emacs
+;;
+;;    (require 'sierotki)
+;;
+;; Je¶li nie chcesz go ³adowaæ zanim nie bêdzie potrzebny, mo¿esz u¿yæ
+;; ³adowania na ¿±danie, np. dodaj±c do .emacs nastêpuj±ce linie
+;;
+;;    (autoload 'tex-magic-space-mode "sierotki"
+;;              "TeX Magic Space minor mode" t)
+;;    (define-key mode-specific-map " " 'tex-magic-space-mode)
+;;
+;; Wówczas po wci¶niêciu `C-c SPC' zostanie w³±czony TeX Magic Space mode
+;; i zostanie za³adowana reszta funkcji.  Uwaga: przy u¿ywaniu
+;; automatycznego ³adowania ten tryb _nie_ bêdzie automatycznie w³±czany
+;; w trybach LaTeX-owych.
+
+
 ;;; Commentary:
 
-;;; Umie¶æ nastêpuj±c± linijkê w swoim pliku .emacs
+;; Ten pakiet s³u¿y do dowi±zywania zdefiniowanych wyrazów (domy¶lnie
+;; jednoliterowych spójników) do nastêpuj±cych po nich s³ów za pomoc± znaku
+;; `~' (tyldy), nie³amliwej spacji TeX-owej.  S³u¿y to temu, aby w
+;; dokumentach TeX-owych unikn±æ jednoliterowych spójników na koñcach linii,
+;; co jest wymagane przez polskie (i czeskie) regu³y typograficzne.
+;;
+;; Pakiet ten dostarcza dwu funkcjonalno¶ci.  Pierwsz± z nich jest
+;; sprawdzenie (istniej±cego) tekstu i zasugerowanie dodania brakuj±cych
+;; tyld.  Jest ona implementowana przez komendê `tex-hard-spaces', za pomoc±
+;; `query-replace-regexp'.  Tê sam± (a nawet rozszerzon±) funkcjonalno¶æ
+;; znale¼æ mo¿na w pakiecie `tildify' (UWAGA: domy¶lne ustawienia w tym
+;; pakiecie s± dostosowane do jêzyka czeskiego).
+;;
+;; Drug± z funkcjonalno¶ci jest automatyczne wpisywanie tyld po
+;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest
+;; ona implementowana przez komendê `tex-magic-space', któr± nale¿y
+;; podpi±æ do spacji.  Do aktywowania tej funkcjonalno¶ci mo¿na u¿yæ
+;; `tex-toggle-magic-space', albo (co jest bezpieczniejsze)
+;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na
+;; aktualnie w³±czyæ z modeline dla trybów g³ównych (major mode)
+;; `latex-mode' lub `tex-mode'; jest on oznaczany za pomoc± " ~".
+;;
+;; Funkcjonalno¶æ ta jest automatycznie w³±czana w trybach TeX-owych
+;; za pomoc± `eval-after-load'.
 
-;; (require 'sierotki)
-
-;;; Ten pakiet s³u¿y do dowi±zywania zdefiniowanych wyrazów (domy¶lnie
-;;; jednoliterowych spójników) do nastêpuj±cych po nich s³ów za pomoc± znaku
-;;; `~' (tyldy), nie³amliwej spacji TeX-owej.  S³u¿y to temu, aby w
-;;; dokumentach TeX-owych unikn±æ jednoliterowych spójników na koñcach linii,
-;;; co jest wymagane przez polskie (i czeskie) regu³y typograficzne.
-;;;
-;;; Pakiet ten dostarcza dwu funkcjonalno¶ci.  Pierwsz± z nich jest
-;;; sprawdzenie (istniej±cego) tekstu i zasugerowanie dodania brakuj±cych
-;;; tyld.  Jest ona implementowana przez komendê `tex-hard-spaces', za pomoc±
-;;; `query-replace-regexp'.  Tê sam± (a nawet rozszerzon±) funkcjonalno¶æ
-;;; znale¼æ mo¿na w pakiecie `tildify' (UWAGA: domy¶lne ustawienia w tym
-;;; pakiecie s± dostosowane do jêzyka czeskiego).
-;;;
-;;; Drug± z funkcjonalno¶ci jest automatyczne wpisywanie tyld po
-;;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest
-;;; ona implementowana przez komendê `tex-magic-space', któr± nale¿y
-;;; podpi±æ do spacji.  Do aktywowania tej funkcjonalno¶ci mo¿na u¿yæ
-;;; `tex-toggle-magic-space', albo (co jest bezpieczniejsze)
-;;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na
-;;; aktualnie w³±czyæ z modeline dla trybów g³ównych (major mode)
-;;; `latex-mode' lub `tex-mode'; jest on oznaczany za pomoc± " ~".
-;;;
-;;; Funkcjonalno¶æ ta jest automatycznie w³±czana w trybach TeX-owych
-;;; za pomoc± `eval-after-load'.
-
-;;; Dokumentacja i komentarze: Jakub Narêbski.
+;; Dokumentacja i komentarze: Jakub Narêbski.
 
 
 ;;; Notes:
 
-;;; TO DO: Ulepszyæ wyra¿enie regularne b±d¼ daæ do wyboru wersjê prost±
-;;;        (i szybk±) lub skomplikowan± (i mog±c± wiêcej).
-;;; TO DO: Zrobiæ wolniejsz± wersjê `tex-magic-space', która bêdzie
-;;;        np. sprawdza³a czy jeste¶my w trybie matematycznym tak jak
-;;;        `TeX-insert-dollar' za pomoc± `texmathp' z AUCTeX-a.
-;;;
-;;; IDEA: `texmathp' jest dostêpne tylko w AUC TeX-u (standardowe tex-mode.el
-;;; dostêpne z Emacsem nie zawiera AFAIK podobnego makra).  Jest ono
-;;; zdefiniowane w texmathp, autoloaded.  Chcemy by `tex-magic-space' dzia³a³o
-;;; zarówno w standardowym `tex-mode'/`latex-mode', jak i w AUC TeX-owym
-;;; `TeX-mode'/`LaTeX-mode', przy czym w tym drugim chcemy mieæ mo¿liwo¶æ
-;;; skorzystania z `texmathp' , w tym pierwszym ewentualnie sprawdzaæ (podobnie
-;;; jak w `comment-beginning') czy u¿ywamy `tex-math-face' co siê sprawdza
-;;; przynajmniej w $$ ... $$ i $ ... $.  Mo¿na by to zrobiæ u¿ywaj±c porady
-;;; (advice) i dodaj±c aktywacjê/deaktywacjê tej porady do
-;;; `TeX-mode-hook'/`LaTeX-mode-hook' (w ka¿dym razie próbuj±c j± aktywowaæ przy
-;;; w³±czaniu odpowiedniego trybu, deaktywuj±c przy jego wy³±czaniu; np. za
-;;; pomoc± `eval-after-load').  Funkcja która by aktywowa³a/deaktywowa³a poradê
-;;; powinna u¿ywaæ `featurep' by sprawdziæ, czy zosta³ za³adowany AUCTeX
-;;; (tex-site, latex, tex; texmathp.el nie dostarcza ¿adnej cechy (feature));
-;;; lub `require' z parametrem NOERROR, sprawdzaj±c czy uda³o siê za³adowaæ
-;;; plik.  Ewentualnie mo¿na by u¿ywaæ `texmathp' (które jest automatycznie
-;;; ³adowane je¶li AUCTeX jest zainstalowany) wewn±trz "pu³apki"
-;;; `condition-case' lub `unwind-protect', z czego oba rozwi±zania umo¿liwiaj±
-;;; skorzystanie ze sprawdzania `tex-math-face' je¶li `texmathp' jest
-;;; niedostêpne.
-;;;
-;;; PRZYK£AD (testowy):
-;;; (defun test-math ()
-;;;   (interactive)
-;;;   (condition-case err
-;;;       (and (texmathp)
-;;; 	   (message "Why: %s" (princ texmathp-why))
-;;; 	   (message "Face: %s" (princ (get-text-property (point) 'face))))
-;;;     ;; This is the handler; it is not a form
-;;;     (error (princ (format "The error was: %s\n" err))
-;;; 	   nil)))
-;;;
-;;; UWAGA: Ró¿ne pliki ró¿nie definiuj± font (face) dla trybu matematycznego:
-;;; * AUCTeX: font-latex.el:  font-latex-math-face (LaTeX math expressions)
-;;; * AUCTeX: hilit-LaTeX.el: w³asne funkcje, u¿ywa hilit19
-;;; * AUCTeX: tex-font.el:    tex-math-face (TeX math expressions)
-;;; * Emacs:  tex-mode.el:    tex-math-face (TeX math expressions)
-;;; ale mo¿na u¿ywaæ `tex-math-face'.
-;;;
-;;; Mo¿na tak¿e sprawdzaæ czy jeste¶my w komentarzu u¿ywaj±c kodu jak w
-;;; `comment-beginning', t.j. sprawdzaj±c czy u¿ywamy `font-lock-comment-face'
-;;; i ewentualnie szukaj±c znaku komentarza `%' w bie¿±cej linii na lewo od
-;;; bie¿±cej pozycji (`point').
+;; TO DO: Ulepszyæ wyra¿enie regularne b±d¼ daæ do wyboru wersjê prost±
+;;        (i szybk±) lub skomplikowan± (i mog±c± wiêcej).
+;; TO DO: Zrobiæ wolniejsz± wersjê `tex-magic-space', która bêdzie
+;;        np. sprawdza³a czy jeste¶my w trybie matematycznym tak jak
+;;        `TeX-insert-dollar' za pomoc± `texmathp' z AUCTeX-a.
+;;
+;; IDEA: `texmathp' jest dostêpne tylko w AUC TeX-u (standardowe tex-mode.el
+;; dostêpne z Emacsem nie zawiera AFAIK podobnego makra).  Jest ono
+;; zdefiniowane w texmathp, autoloaded.  Chcemy by `tex-magic-space' dzia³a³o
+;; zarówno w standardowym `tex-mode'/`latex-mode', jak i w AUC TeX-owym
+;; `TeX-mode'/`LaTeX-mode', przy czym w tym drugim chcemy mieæ mo¿liwo¶æ
+;; skorzystania z `texmathp' , w tym pierwszym ewentualnie sprawdzaæ (podobnie
+;; jak w `comment-beginning') czy u¿ywamy `tex-math-face' co siê sprawdza
+;; przynajmniej w $$ ... $$ i $ ... $.  Mo¿na by to zrobiæ u¿ywaj±c porady
+;; (advice) i dodaj±c aktywacjê/deaktywacjê tej porady do
+;; `TeX-mode-hook'/`LaTeX-mode-hook' (w ka¿dym razie próbuj±c j± aktywowaæ przy
+;; w³±czaniu odpowiedniego trybu, deaktywuj±c przy jego wy³±czaniu; np. za
+;; pomoc± `eval-after-load').  Funkcja która by aktywowa³a/deaktywowa³a poradê
+;; powinna u¿ywaæ `featurep' by sprawdziæ, czy zosta³ za³adowany AUCTeX
+;; (tex-site, latex, tex; texmathp.el nie dostarcza ¿adnej cechy (feature));
+;; lub `require' z parametrem NOERROR, sprawdzaj±c czy uda³o siê za³adowaæ
+;; plik.  Ewentualnie mo¿na by u¿ywaæ `texmathp' (które jest automatycznie
+;; ³adowane je¶li AUCTeX jest zainstalowany) wewn±trz "pu³apki"
+;; `condition-case' lub `unwind-protect', z czego oba rozwi±zania umo¿liwiaj±
+;; skorzystanie ze sprawdzania `tex-math-face' je¶li `texmathp' jest
+;; niedostêpne.
+;;
+;; PRZYK£AD (testowy):
+;; (defun test-math ()
+;;   (interactive)
+;;   (condition-case err
+;;       (and (texmathp)
+;; 	   (message "Why: %s" (princ texmathp-why))
+;; 	   (message "Face: %s" (princ (get-text-property (point) 'face))))
+;;     ;; This is the handler; it is not a form
+;;     (error (princ (format "The error was: %s\n" err))
+;; 	   nil)))
+;;
+;; UWAGA: Ró¿ne pliki ró¿nie definiuj± font (face) dla trybu matematycznego:
+;; * AUCTeX: font-latex.el:  font-latex-math-face (LaTeX math expressions)
+;; * AUCTeX: hilit-LaTeX.el: w³asne funkcje, u¿ywa hilit19
+;; * AUCTeX: tex-font.el:    tex-math-face (TeX math expressions)
+;; * Emacs:  tex-mode.el:    tex-math-face (TeX math expressions)
+;; ale mo¿na u¿ywaæ `tex-math-face'.
+;;
+;; Mo¿na tak¿e sprawdzaæ czy jeste¶my w komentarzu u¿ywaj±c kodu jak w
+;; `comment-beginning', t.j. sprawdzaj±c czy u¿ywamy `font-lock-comment-face'
+;; i ewentualnie szukaj±c znaku komentarza `%' w bie¿±cej linii na lewo od
+;; bie¿±cej pozycji (`point').
 
 
-;;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
-;;; `tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
+;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
+;; `tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
 
 
 ;;; History:
 
-;;; Kod `tex-hard-spaces' pojawi³ siê po raz pierwszy w:
-
-;;; From: rysiek@IPIPAN.GDA.PL (Ryszard Kubiak)
-;;; Newsgroups: pl.comp.dtp.tex.gust
-;;; Subject: Re: tylda do samotnych
-;;; Date: 25 Oct 1999 21:12:54 GMT
-
-;;; Wpisywanie tyld "w locie", tzn `tex-magic-space' pojawi³o siê w:
-
-;;; From: Michal Jankowski <michalj@fuw.edu.pl>
-;;; Newsgroups: pl.comp.dtp.tex
-;;; Subject: Dowiazywanie samotnich literek do nastepnego slowa.
-;;; Date: 03 Nov 1999 12:45:22 +0100
-
-;;; Nastêpnie wyra¿enia regularne w obu funkcjach by³y sukcesywnie
-;;; poprawiane.  W wyniku do¶wiadczeñ z u¿ywania `tex-magic-space' przy
-;;; pisaniu tekstów z du¿± ilo¶ci± matematyki zosta³o napisane
-;;; `tex-toggle-magic-space'.  Nastêpnie zosta³ zg³oszony b³±d w wyra¿eniu
-;;; regularnym w `tex-magic-space', a w wyniku dyskusji powsta³a obecna
-;;; wersja `tex-magic-space', u¿ywaj±ca zmiennej `last-command-char'
-;;; i funkcji `self-insert-command'
-
-;;; From: Michal Jankowski <Michal.Jankowski@fuw.edu.pl>
-;;; Subject: Re: Test sierotek
-;;; Date: 30 Oct 2001 13:02:16 +0100
-
-;;; W wyniku porównania z inn± implementacj± magicznej spacji (`spacja')
-;;; z artyku³u "GNU Emacs Lisp" rzyjontka na debian.otwarte.pl
-;;; http://debian.otwarte.pl/article.php?aid=39
-;;; (w szczególno¶ci innego jej zachowania) powsta³o pytanie o to, jakie
-;;; w³asno¶ci powinno mieæ `tex-magic-space'
-
-;;; From: "Jakub Narêbski" <jnareb@fuw.edu.pl>
-;;; Subject: RFC: sierotki.el
-;;; Newsgroups: pl.comp.dtp.tex
-;;; Date: 14 Nov 2002 14:13:26 GMT
-
-;;; Dyskusja trwa...
+;; Kod `tex-hard-spaces' pojawi³ siê po raz pierwszy w:
+;;
+;; From: rysiek@IPIPAN.GDA.PL (Ryszard Kubiak)
+;; Newsgroups: pl.comp.dtp.tex.gust
+;; Subject: Re: tylda do samotnych
+;; Date: 25 Oct 1999 21:12:54 GMT
+;;
+;; Wpisywanie tyld "w locie", tzn `tex-magic-space' pojawi³o siê w:
+;;
+;; From: Michal Jankowski <michalj@fuw.edu.pl>
+;; Newsgroups: pl.comp.dtp.tex
+;; Subject: Dowiazywanie samotnich literek do nastepnego slowa.
+;; Date: 03 Nov 1999 12:45:22 +0100
+;;
+;; Nastêpnie wyra¿enia regularne w obu funkcjach by³y sukcesywnie
+;; poprawiane.  W wyniku do¶wiadczeñ z u¿ywania `tex-magic-space' przy
+;; pisaniu tekstów z du¿± ilo¶ci± matematyki zosta³o napisane
+;; `tex-toggle-magic-space'.  Nastêpnie zosta³ zg³oszony b³±d w wyra¿eniu
+;; regularnym w `tex-magic-space', a w wyniku dyskusji powsta³a obecna
+;; wersja `tex-magic-space', u¿ywaj±ca zmiennej `last-command-char'
+;; i funkcji `self-insert-command'
+;;
+;; From: Michal Jankowski <Michal.Jankowski@fuw.edu.pl>
+;; Subject: Re: Test sierotek
+;; Date: 30 Oct 2001 13:02:16 +0100
+;;
+;; W wyniku porównania z inn± implementacj± magicznej spacji (`spacja')
+;; z artyku³u "GNU Emacs Lisp" rzyjontka na debian.otwarte.pl
+;; http://debian.otwarte.pl/article.php?aid=39
+;; (w szczególno¶ci innego jej zachowania) powsta³o pytanie o to, jakie
+;; w³asno¶ci powinno mieæ `tex-magic-space'
+;;
+;; From: "Jakub Narêbski" <jnareb@fuw.edu.pl>
+;; Subject: RFC: sierotki.el
+;; Newsgroups: pl.comp.dtp.tex
+;; Date: 14 Nov 2002 14:13:26 GMT
+;;
+;; Dyskusja trwa...
 
 
 ;;; Change Log:
@@ -332,7 +348,7 @@ Defined in `font-latex' from AUCTeX:
 * font-latex-math-face:   Face to use for LaTeX math environments.
 * font-latex-sedate-face: Face to use for LaTeX minor keywords.
 
-Used in advice `tex-magic-space-facep'")
+Used in advice `tex-magic-space-face'")
 
 (defun nonempty-intersection (list-or-atom list)
   "Return non-nil if any element of LIST-OR-ATOM is element of LIST.
@@ -348,7 +364,7 @@ iterate over elements of LIST-OR-ATOM."
       found)))
   
 (defadvice tex-magic-space
-  (around tex-magic-space-facep (&optional prefix) preactivate)
+  (around tex-magic-space-face (&optional prefix) preactivate)
   "Inactive when face belongs to `tex-magic-space-face-list'."
   (interactive "P")
   (if (not (nonempty-intersection (get-text-property (point) 'face)
@@ -358,18 +374,18 @@ iterate over elements of LIST-OR-ATOM."
 
 ;; je¶li u¿ywamy kolorowania skladni (font lock) to mo¿emy u¿ywaæ tej
 ;; porady, w przeciwnym wypadku wy³±czamy (disable) poradê
-;; `tex-magic-space-facep' i dodajemy jej automatyczne w³±czanie do haków
+;; `tex-magic-space-face' i dodajemy jej automatyczne w³±czanie do haków
 ;; font-lock
 (unless (or (featurep 'sierotki) 	; file was loaded already
 	    (and (boundp 'global-font-lock-mode) global-font-lock-mode)
 	    (and (boundp 'font-lock-mode) font-lock-mode))
-  (ad-disable-advice 'tex-magic-space 'around 'tex-magic-space-facep)
+  (ad-disable-advice 'tex-magic-space 'around 'tex-magic-space-face)
   (add-hook 'font-lock-mode-hook
 	    #'(lambda () (ad-enable-advice 'tex-magic-space 'around
-					   'tex-magic-space-facep)))
+					   'tex-magic-space-face)))
   (add-hook 'global-font-lock-mode-hook
 	    #'(lambda () (ad-enable-advice 'tex-magic-space 'around
-					   'tex-magic-space-facep))))
+					   'tex-magic-space-face))))
 
 (defvar tex-magic-space-user-form
   'nil
@@ -411,7 +427,7 @@ TeX Magic Space mode string, `~'.
 
 Sets `tex-magic-space-checking-string'.
 
-See also: `tex-magic-space-texmathp', `tex-magic-space-facep',
+See also: `tex-magic-space-texmathp', `tex-magic-space-face',
 `tex-magic-space-user-form'"
   (interactive "P")
   ;; udostêpnij (enable) poradê `tex-magic-space-user-form' je¶li
@@ -431,12 +447,12 @@ See also: `tex-magic-space-texmathp', `tex-magic-space-facep',
   (setq tex-magic-space-checking-string
 	(when (ad-is-active 'tex-magic-space)
 	  (concat
-	   "/"
+	   ":"
 	   (when (ad-advice-enabled
 		(ad-find-advice 'tex-magic-space 'around 'tex-magic-space-texmathp))
 	     "m")
 	   (when (ad-advice-enabled
-		(ad-find-advice 'tex-magic-space 'around 'tex-magic-space-facep))
+		(ad-find-advice 'tex-magic-space 'around 'tex-magic-space-face))
 	     "f")
 	   (when (ad-advice-enabled
 		(ad-find-advice 'tex-magic-space 'around 'tex-magic-space-user-form))
@@ -481,7 +497,9 @@ See also command `tex-magic-space-mode' for an alternative way to use
      (t					; wpp (niedodatni prefiks)
       (local-unset-key " ")))
     ;; koniec cond; opisanie wyniku
-    (describe-key-briefly " ")))
+    (message "%s runs the command %s"
+	     (key-description " ")
+	     (key-binding " "))))
 
 
 ;;;; ======================================================================
@@ -646,6 +664,13 @@ loading this file i.e. before (require 'sierotki).")
 ;;;; Zakoñczenie
 ;; Aby mo¿na by³o ³adowaæ ten plik zarówno za pomoc±
 ;; (load "sierotki") jak i (requires 'sierotki)
+
+;;; *** Announce ***
+
 (provide 'sierotki)
+
+;; Local variables:
+;; coding: iso-latin-2
+;; End:
 
 ;;; sierotki.el ends here
