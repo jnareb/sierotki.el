@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.4-pre1
+;; Version: 	2.4-pre2
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	tex, wp
@@ -478,14 +478,23 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 ;; uruchamia siê tak¿e text-mode-hook (AUCTeX, tex-mode)
 
 ;; W³±cz TeX Magic Space mode dla znanych trybów (La)TeX-owych
+;; NOTE: u¿yj drugiej wersji i operatora cytowania w eval-after-load je¶li
+;;       twój Emacs nie rozumie `
+;; NOTE: zapewne `eval-after-load' nie jest w ogóle potrzebne
+(defmacro tex-magic-space-mode-add-to-hook (hook)
+  "Add `(setq 'tex-magic-space-mode t)' to HOOK."
+  `(add-hook ,hook (function (lambda () (setq 'tex-magic-space-mode t)))))
+; (add-hook hook (function (lambda () (setq 'tex-magic-space-mode t)))))
+; (add-hook hook 'turn-on-tex-magic-space-mode)
+
 ;; For AUC TeX
-(eval-after-load "tex"      '(setq tex-magic-space-mode t))
-(eval-after-load "latex"    '(setq tex-magic-space-mode t))
+(eval-after-load "tex"      (tex-magic-space-mode-add-to-hook 'TeX-mode-hook))
+(eval-after-load "latex"    (tex-magic-space-mode-add-to-hook 'LaTeX-mode-hook))
 ;; For tex-mode included in Emacs
-(eval-after-load "tex-mode" '(setq tex-magic-space-mode t))
+(eval-after-load "tex-mode" (tex-magic-space-mode-add-to-hook 'tex-mode-hook))
 ;; For RefTeX
 ;; NOTE: W tej wersji jest to ca³kowicie bezpieczne
-(eval-after-load "reftex"   '(setq tex-magic-space-mode t))
+(eval-after-load "reftex"   '(tex-magic-space-mode-add-to-hook 'reftex-mode-hook))
 
 
 ;;;; ======================================================================
