@@ -2,12 +2,11 @@
 
 ;; Copyright (C) 2002  Micha³ Jankowski, Jakub Narêbski
 
-;; Author: 	Ryszard Kubiak <rysiek@ipipan.gda.pl>
+;; Author: Ryszard Kubiak        <rysiek@ipipan.gda.pl>
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
-;;		Jakub Narêbski <jnareb@fuw.edu.pl>
-;;		Adam Przepiórkowski <adamp_at@at_ipipan.waw.pl>
+;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 	2.3.1
+;; Version: 	2.3.2
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	tex, wp
@@ -53,12 +52,17 @@
 ;;; znale¼æ mo¿na w pakiecie `tildify' (UWAGA: domy¶lne ustawienia w tym
 ;;; pakiecie s± dostosowane do jêzyka czeskiego).
 
-;;; Drug± z funkcjonalno¶ci jest automatyczne, wpisywanie tyld po
-;;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest ona
-;;; implementowana przez komendê `tex-magic-space', któr± nale¿y podpi±æ do
-;;; spacji.  Do aktywowania tej funkcjonalno¶ci mo¿na u¿yæ
-;;; `tex-toggle-magic-space'.  Funkcjonalno¶æ ta jest automatycznie w³±czana w
-;;; trybach TeX-owych za pomoc± `eval-after-load'.
+;;; Drug± z funkcjonalno¶ci jest automatyczne wpisywanie tyld po
+;;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest
+;;; ona implementowana przez komendê `tex-magic-space', któr± nale¿y
+;;; podpi±æ do spacji.  Do aktywowania tej funkcjonalno¶ci mo¿na u¿yæ
+;;; `tex-toggle-magic-space', albo (co jest bezpieczniejsze)
+;;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na
+;;; aktualnie w³±czyæ z modeline dla trybów g³ównych (major mode)
+;;; `latex-mode' lub `tex-mode'; jest on oznaczany za pomoc± " ~".
+;;;
+;;; Funkcjonalno¶æ ta jest automatycznie w³±czana w trybach TeX-owych
+;;; za pomoc± `eval-after-load'.
 
 ;;; Dokumentacja i komentarze: Jakub Narêbski.
 
@@ -108,8 +112,8 @@
 ;;; ale mo¿na u¿ywaæ `tex-math-face'.
 ;;;
 ;;; Mo¿na tak¿e sprawdzaæ czy jeste¶my w komentarzu u¿ywaj±c kodu jak w
-;;; `comment-beginning', t.j. sprawdzaj±c czy u¿ywamy `font-lock-comment-face' i
-;;; ewentualnie szukaj±c znaku komentarza `%' w bie¿±cej linii na lewo od
+;;; `comment-beginning', t.j. sprawdzaj±c czy u¿ywamy `font-lock-comment-face'
+;;; i ewentualnie szukaj±c znaku komentarza `%' w bie¿±cej linii na lewo od
 ;;; bie¿±cej pozycji (`point').
 
 
@@ -313,29 +317,9 @@ In this (buffer local) mode `\\[tex-magic-space]' runs the command
 ;;; Initialization by Jakub Narêbski <jnareb@fuw.edu.pl>
 ;;; and Adam Przepiórkowski <adamp_at@at_ipipan.waw.pl>
 
-;;;{{{ Old version
-;; `C-c SPC' toggles magic space:
-;; `mode-specific-map' is keymap for characters following C-c
-;; Sequences consisting of `C-c' followed by any punctuation character
-;; other than `{', `}', `<', `>', `:', `;' are allocated for minor modes.
-;(define-key mode-specific-map " " 'tex-toggle-magic-space) ; C-c SPC
-
-;;; Przypisz SPC do `tex-magic-space' w odpowiednich trybach u¿ywaj±c `eval-after-load'
-;; For AUC TeX
-;(eval-after-load "tex"      '(define-key TeX-mode-map    " " 'tex-magic-space))
-;(eval-after-load "latex"    '(define-key LaTeX-mode-map  " " 'tex-magic-space))
-;; For tex-mode included in Emacs
-;(eval-after-load "tex-mode" '(define-key tex-mode-map    " " 'tex-magic-space))
-;; For RefTeX
-;; NOTE: RefTeX to minor mode, keymap zas³ania lokalny keymap
-;; (np. LaTeX-mode-keymap) i aby `tex-toggle-magic-space' dzia³a³o trzeba by
-;; jawnie u¿ywaæ `reftex-mode-map', a nie wiadomo czy RefTeX zosta³ za³adowany
-;; Poni¿szy kawa³ek kodu powinien pozostaæ zakomentowany.
-;;(eval-after-load "reftex"   '(define-key reftex-mode-map " " 'tex-magic-space))
-;;;}}}
-
 ;; Globally bind TeX Magic Space mode to `C-c SPC'
 (define-key mode-specific-map " " 'tex-magic-space-mode) ; C-c SPC
+
 ;; Turn on TeX Magic Space for known (La)TeX modes (at loading)
 ;; For AUC TeX
 (eval-after-load "tex"      '(setq tex-magic-space-mode t))
@@ -346,6 +330,9 @@ In this (buffer local) mode `\\[tex-magic-space]' runs the command
 ;; NOTE: W tej wersji jest to ca³kowicie bezpieczne
 (eval-after-load "reftex"   '(setq tex-magic-space-mode t))
 
+
+;;;; ======================================================================
+;;;; Zakoñczenie
 ;; Aby mo¿na by³o ³adowaæ ten plik zarówno za pomoc±
 ;; (load "sierotki") jak i (requires 'sierotki)
 (provide 'sierotki)
