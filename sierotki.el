@@ -170,6 +170,13 @@
 ;; TO DO: Zgadywanie, czy nale¿y w³±czyæ TeX Magic Space mode (czy w inny
 ;; sposób uaktywniæ magiczn± spacjê) na podstawie nag³ówka pliku TeX-owego.
 ;;
+;; TO DO: U¿yæ `defcustom' do zdefiniowania zmiennych (via `customize').
+;;
+;; TO DO: Dodaæ tex-magic-space-regexp-len zamiast 2 (np. dowi±zywanie 'tys.')
+;;        do `tex-magic-space'.
+;;
+;; TO DO: Dodaæ `tex-magic-space-checking-why' (a la `texmathp-why'), które
+;;        bêdzie podawa³o dlaczego magiczna spacja jest nieaktywna.
 ;;
 ;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
 ;;
@@ -254,8 +261,6 @@
 ;; spacjê, po jednoliterowych [polskich] spójnikach w ca³ym buforze.
 ;; Poni¿sza zmienna definiuje wyra¿enie regularne u¿ywane w `tex-hard-spaces'
 (defvar tex-hard-spaces-regexp "\\<\\([aeiouwzAEIOUWZ]\\)\\s +"
-  ;; Pierwsza linia dokumentacji jest zbyt d³uga:
-  ;; nie powinna przekraczaæ 67 znaków (jest 76 - 3 = 73)
   "*Regular expression which detects single [aeiouwz] for `tex-hard-spaces'.
 The part of regular expression which matches string to be saved
 should be in parentheses, so the replace part \\\\1~ will work.
@@ -265,8 +270,6 @@ Used as first argument to `query-replace-regexp'.")
 ;; Zwyk³e `query-replace-regexp', czyli C-M-% dla odpowiedniego
 ;; wyra¿enia regularnego, zapisanego w `tex-hard-spaces-regexp'
 (defun tex-hard-spaces ()
-  ;; Pierwsza linia dokumentacji
-  ;; nie powinna przekraczaæ 67 znaków (jest 68 - 3 = 65)
   "Replace whitespace characters after single-letter word with `~'.
 Replaces whitespace characters following single-letter conjunctions by `~',
 the TeX non-breakable space in whole buffer, interactively.
@@ -294,11 +297,7 @@ It is implemented using `query-replace-regexp'."
 ;; UWAGA: [czasami] polskie literki s± traktowane jako koniec s³owa dla 8bit
 ;;        tzn. przy u¿yciu `standard-display-european' do ich wprowadzania.
 ;;        Bêdê próbowac znale¼æ dok³adne warunki wyst±pienia b³edu.
-;; TO DO: U¿yæ `defcustom'
-;; TO DO: Dodaæ tex-magic-space-regexp-len zamiast 2 (np. dowi±zywanie 'tys.')
 (defvar tex-magic-space-regexp "\\<[aeiouwzAEIOUWZ]\\'"
-  ;; Pierwsza linia dokumentacji jest zbyt d³uga:
-  ;; nie powinna przekraczaæ 67 znaków (jest 76 - 3 = 73)
   "*Regular expression which detects single [aeiouwz] for `tex-magic-space'.
 `tex-magic-space' inserts `~' if this expression matches two characters before
 point, otherwise it inserts the key it is bound to (\\[tex-magic-space]),
@@ -312,8 +311,6 @@ ATTENTION: sometimes in unibyte mode the non US-ASCII letters are considered
 word boundary, even when they are word constituents.")
 
 (defun tex-magic-space (&optional prefix)
-  ;; Pierwsza linia dokumentacji jest zbyt d³uga:
-  ;; nie powinna przekraczaæ 67 znaków (jest 72 - 3 = 69)
   "Magic-space - insert non-breakable space after a single-letter word.
 Interactively, PREFIX is the prefix arg (default 1).
 Uses `tex-magic-space-regexp' for single-letter words detection.
@@ -346,8 +343,6 @@ See also: `tex-hard-spaces'"
 ;;; ----------------------------------------------------------------------
 ;;; "Porady" (advices) dla `tex-magic-space'
 
-;; TO DO: Dodaæ `tex-magic-space-checking-why' (a la `texmathp-why'), które
-;;        bêdzie podawa³o dlaczego magiczna spacja jest nieaktywna.
 ;; IDEE:
 ;; a. `texmathp', udostêpniane (enable) po za³adowaniu "texmathp"
 ;; b. a la `texmathp' lub `LaTeX-modify-environment' u¿ywane przez
@@ -621,13 +616,13 @@ Returns non-nil if the new state is enabled.
 \\<tex-magic-space-mode-map>
 In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
   (interactive "P")
-;;;  (setq tex-magic-space-mode
-;;;	(if (null arg) (not tex-magic-space-mode)
-;;;	  (> (prefix-numeric-value arg) 0))))
-  ;; w³±cz lub wy³±cz tryb
   (setq tex-magic-space-mode
-	(not (or (and (null arg) tex-magic-space-mode)
-		 (<= (prefix-numeric-value arg) 0))))
+	(if (null arg) (not tex-magic-space-mode)
+	  (> (prefix-numeric-value arg) 0)))
+  ;; alternative, less clear and slower
+;;;  (setq tex-magic-space-mode
+;;;	(not (or (and (null arg) tex-magic-space-mode)
+;;;		 (<= (prefix-numeric-value arg) 0))))
   ;; uaktualnij modeline
   ;; IDEA: mo¿na by dodaæ informowanie o w(y)³±czeniu tego trybu
   (force-mode-line-update))
