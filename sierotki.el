@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.5.0
+;; Version: 	2.5.1
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -73,14 +73,13 @@
 ;; pakiecie s± dostosowane do jêzyka czeskiego).
 ;;
 ;; Drug± z funkcjonalno¶ci jest automatyczne wpisywanie tyld po
-;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest
-;; ona implementowana przez komendê `tex-magic-space', któr± nale¿y
-;; podpi±æ do spacji.  Do aktywowania tej funkcjonalno¶ci nale¿y u¿yæ
+;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest ona
+;; implementowana przez komendê `tex-magic-space', któr± nale¿y podpi±æ do
+;; spacji.  Do aktywowania tej funkcjonalno¶ci nale¿y w³±czyæ
 ;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na
-;; aktualnie w³±czyæ z modeline dla trybów g³ównych (major mode)
-;; `latex-mode' lub `tex-mode'; jest on oznaczany za pomoc± " ~".
-;; Ewentualne dodatkowe oznaczenia po " ~" informuj±, ze porady s± aktywne
-;; i pokazuj± które porady s± w³±czone.
+;; aktualnie w³±czyæ tak¿e z modeline minor mode menu; jest on oznaczany za
+;; pomoc± " ~".  Ewentualne dodatkowe oznaczenia po " ~" informuj±, ze
+;; porady s± aktywne i pokazuj± które porady s± w³±czone.
 ;;
 ;; Funkcjonalno¶æ ta jest automatycznie w³±czana w trybach TeX-owych
 ;; za pomoc± dodania odpowiednika `turn-on-tex-magic-space-mode' do
@@ -92,9 +91,10 @@
 
 ;;; Notes:
 
-;; W³±czanie i aktywacja porady `tex-magic-space-texmathp' (ze standardowymi
-;; warto¶ciami zmiennych dla `texmathp') powoduje oko³o 10-krotne zwolnienie
-;; dzia³ania `tex-magic-space' (zmierzono za pomoca pakietu "elp").
+;; W³±czanie i aktywacja porady `tex-magic-space-texmathp', lub jej
+;; odpowiednika (ze standardowymi warto¶ciami zmiennych dla `texmathp')
+;; powoduje oko³o 10-krotne zwolnienie dzia³ania `tex-magic-space'
+;; (zmierzono za pomoca pakietu "elp").
 
 
 ;;; To do:
@@ -260,7 +260,7 @@ Works with abbrev expansion with the following exceptions:
 
 Should not be used directly.
 
-To use it turn on TeX Magic Space minor mode using command 
+To use it turn on TeX Magic Space minor mode using command
 `tex-magic-space-mode' (\\[tex-magic-space-mode]).
 
 See also: `tex-hard-spaces'"
@@ -272,6 +272,7 @@ See also: `tex-hard-spaces'"
   (self-insert-command (or prefix 1))) ; daje obs³ugê auto-fill, abbrev, blinkin-paren
 
 
+
 ;;; ----------------------------------------------------------------------
 ;;; "Porady" (advices) dla `tex-magic-space'
 
@@ -298,27 +299,33 @@ See also: `tex-hard-spaces'"
 
 (defun texinverbp ()
   "Determine if point is inside LaTeX \\verb command.
-Returns nil or pair (POINT-VERB-BEG . POINT-VERB-END)."
+Returns nil or the pair (POINT-VERB-BEG . POINT-VERB-END) of positions where
+\\verb argument begins and ends or the position POINT-VERB-BEG where \\verb
+command argument begins if \\verb is unfinished (has no closing delimiter).
+
+This command uses the fact that the argument to \\verb cannot contain end of
+line characters."
   (interactive)
   (let ((point (point))
 	beg
 	end
 	delim)
   (save-excursion
-    (and (setq beg (and (re-search-backward "\\\\verb\\([^a-zA-Z*\\s-]\\)"
+    (and (setq beg (and (re-search-backward "\\\\verb\\*?\\([^a-zA-Z*\\n]\\)"
 					   (line-beginning-position) t)
 		       (match-end 0)))
-	 ;; jest k³opot z ogranicznikiem '\', który jest wpisywany jako '\\'
-	 (setq delim (match-string-no-properties 1))
+	 (setq delim (regexp-quote (match-string-no-properties 1)))
 	 (goto-char beg)
 	 ;;(or (insert "!") t)
 	 (setq end (and (skip-chars-forward (concat "^" delim)
 					    (line-end-position))
 			(point)))
-	 (looking-at (concat "[" delim "]"))
+	 (or (eolp)
+	     (looking-at (concat "[" delim "]")))
 	 ;;(or (insert "!") t)
-	 (and (< point end) 
-	      (cons beg end))))))
+	 (cond ((>= point end) nil)
+	       ((eolp) beg)
+	       (t (cons beg end)))))))
 
 ;; IDEE: `tex-magic-space-texmathp'
 ;; * mo¿liwo¶ci sprawdzania, czy `texmathp' jest dostêpne:
@@ -524,7 +531,7 @@ See also: `tex-magic-space-texmathp', `tex-magic-space-face',
 You can set it directly or use the command `tex-magic-space-mode'.")
 (make-variable-buffer-local 'tex-magic-space-mode)
 
-(defvar tex-magic-space-mode-map 
+(defvar tex-magic-space-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key tex-magic-space-mode-map " " 'tex-magic-space)
     map)
