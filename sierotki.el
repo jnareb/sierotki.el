@@ -2,11 +2,11 @@
 
 ;; Copyright (C) 2002  Micha³ Jankowski, Jakub Narêbski
 
-;; Author: Ryszard Kubiak        <rysiek@ipipan.gda.pl>
+;; Author: 	Ryszard Kubiak   <rysiek@ipipan.gda.pl>
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
-;; Maintainer: 	Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 	2.3.5
+;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
+;; Version: 	2.4-pre1
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	tex, wp
@@ -166,9 +166,12 @@
 
 ;;; Change Log:
 
-;;; Version 2.3 (RCS revision 1.12): 
-;;  * Pojawi³ siê TeX Magic Space minor mode.
-
+;; Version 2.3 (RCS revision 1.12): 
+;; * Pojawi³ siê TeX Magic Space minor mode.
+;; Version 2.4
+;; * Dodane porady i polecenie do ich w³±czana, aby `tex-magic-space'
+;;   pozostawa³a nieaktywna tam gdzie nie trzeba (np. w trybie
+;;   matematycznym wykrywanym za pomoc± `texmathp').
 
 ;;; Code:
 
@@ -253,8 +256,7 @@ Works with abbrev expansion with the following exceptions:
  - abbrevs ending with single-letter word will have `~' instead of space
    after the expansion
  - abbrevs with expansion ending with single-letter word won't have
-   the SPC following single-letter word substituted with `~'; 
-   workaround: define expansion with ending `~'
+   the SPC following single-letter word substituted with `~'
 
 Bind it to space using \\[local-set-key] SPC tex-magic-space
 or turn on TeX Magic Space minor mode using command `tex-magic-space-mode'
@@ -268,6 +270,43 @@ See also: `tex-hard-spaces'"
     (setq last-command-char ?~))       ; wstawiamy `~' zamiast SPC
   (self-insert-command (or prefix 1))) ; daje obs³ugê auto-fill, abbrev, blinkin-paren
 
+
+;;; ----------------------------------------------------------------------
+;;; "Porady" (advices) dla `tex-magic-space'
+(eval-when-compile (require 'texmathp))
+
+(defadvice tex-magic-space 
+  (around tex-magic-space-texmathp (&optional prefix) preactivate)
+  "Inactive in math mode as defined by `texmathp'"
+  (interactive "p")
+  (if (and (fboundp 'texmathp) (not (texmathp)))
+      ;; jeste¶my poza trybem metametycznym albo `texmathp' nie istnieje
+      ;; TO DO: uczyniæ tê poradê domy¶lnie nieaktywn± (disabled), aktywowaæ
+      ;;        j± przy ³adowaniu texmathp za pomoc± `eval-after-load'
+      (prog1 
+	  ad-do-it
+	(message "Default `tex-magic-space': '%c'" last-command-char))
+    (message "Math mode detected: %s" (princ texmathp-why))
+    ;; IDEA: mo¿na u¿yæ `insert' aby deaktywowaæ `auto-fill-mode' itp.
+    ;; w trybie matematycznym.
+    (self-insert-command (or prefix 1))))
+
+;; TO DO: Zmieniæ nazwê na `tex-magic-space-toggle-checking'; bêdzie wiêcej
+;; porad, a poni¿sza funkcja w³±cza/wy³±cza (activate) je wszystkie.
+(defun tex-magic-space-toggle-texmathp (&optional arg)
+  "Toggle whether `tex-magic-space' detects math mode.
+With prefix argument ARG, activate detection if ARG is positive,
+otherwise deactivate it.  Uses advice `tex-magic-space-texmathp'."
+  (interactive "P")
+  (cond ((null arg) (if (ad-is-active 'tex-magic-space)
+			(ad-deactivate 'tex-magic-space)
+		      (ad-activate 'tex-magic-space)))
+	((> (prefix-numeric-value arg) 0) (ad-activate 'tex-magic-space))
+	(t (ad-deactivate 'tex-magic-space)))
+  (message "Advices %sctivated." 
+	   (if (ad-is-active 'tex-magic-space) "a" "dea")))
+;; see also: `ad-is-active', `ad-is-advised', `ad-has-enabled-advice',
+;;  `ad-get-enabled-advices', `ad-find-some-advice' and `ad-advice-enabled';       
 
 ;;; ----------------------------------------------------------------------
 ;;; Toggle magic space by Jakub Narêbski <jnareb@fuw.edu.pl>,
