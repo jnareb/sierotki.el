@@ -6,7 +6,7 @@
 ;;	Jakub Narebski <jnareb@fuw.edu.pl>
 ;;	Adam P. <adamp_at@at_ipipan.waw.pl>
 ;; Maintainer: Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 1.3.1
+;; Version: 2.0rc1
 ;; Keywords: tex, wp
 ;; Created: 03-11-1999
 
@@ -73,7 +73,7 @@ word boundary, even when they are word constituents.")
 
 ;;; Magic space by Michal Jankowski <michalj@fuw.edu.pl>
 ;;; Modified by Jakub Narêbski <jnareb@fuw.edu.pl>
-(defun tex-magic-space () 
+(defun tex-magic-space (arg) 
   "Magic-space - inserts non-breakable space after a single-letter word. 
 Uses `tex-magic-space-regexp' for single-letter words detection.
 
@@ -81,14 +81,12 @@ Bind it to space using \\[local-set-key] SPC tex-magic-space
 or `tex-toggle-magic-space' (\\[tex-toggle-magic-space]).
 
 See also: `tex-hard-spaces'"
-  (interactive)
-  (if (string-match 
-       tex-magic-space-regexp
+  (interactive "p")
+  (when (string-match 
+	 tex-magic-space-regexp
        (buffer-substring (max (point-min) (- (point) 2)) (point)))
-      (insert "~")
-    (insert " ")
-    (and auto-fill-function
-	 (funcall auto-fill-function))))
+    (setq last-command-char ?~))
+  (self-insert-command arg))
 
 ;;; ----------------------------------------------------------------------
 ;;; Toggle magic space by Jakub Narêbski <jnareb@fuw.edu.pl>, 
