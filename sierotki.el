@@ -2,7 +2,8 @@
 
 ;; Copyright (C) 2002  Michal Jankowski, Jakub Narebski
 
-;; Author: Michal Jankowski <michalj@fuw.edu.pl>
+;; Author: Ryszard Kubiak <rysiek@ipipan.gda.pl>
+;;	Michal Jankowski <michalj@fuw.edu.pl>
 ;;	Jakub Narebski <jnareb@fuw.edu.pl>
 ;;	Adam P. <adamp_at@at_ipipan.waw.pl>
 ;; Maintainer: Jakub Narebski <jnareb@fuw.edu.pl>
@@ -13,43 +14,53 @@
 ;; $Id$
 
 ;; Copyright (C) 2002  Michal Jankowski, Jakub Narebski
-     
+
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
 ;; published by the Free Software Foundation; either version 2 of
 ;; the License, or (at your option) any later version.
-          
+
 ;; This program is distributed in the hope that it will be
 ;; useful, but WITHOUT ANY WARRANTY; without even the implied
 ;; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 ;; PURPOSE.  See the GNU General Public License for more details.
-          
+
 ;; You should have received a copy of the GNU General Public
 ;; License along with this program; if not, write to the Free
 ;; Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ;; MA 02111-1307 USA
 
+
 ;;; Commentary:
-
-;;; Put the following line in your .emacs file
-
-;; (require 'sierotki)
-
-;;; This file defines only two variables and three functions. 
-;;; Heavily documented by Jakub Narêbski.
-
-
-;;; Commentary[pl]:
 
 ;;; Umie¶æ nastêpuj±c± linijkê w swoim pliku .emacs
 
 ;; (require 'sierotki)
 
-;;; Ten plik/pakiet definiuje tylko dwie zmienne i trzy funkcje.
+;;; Ten pakiet s³u¿y do dowi±zywania zdefiniowanych wyrazów (domy¶lnie
+;;; jednoliterowych spójników) do nastêpuj±cych po nich s³ów za pomoc± znaku
+;;; `~' (tyldy), nie³amliwej spacji TeX-owej.  S³u¿y to temu, aby w
+;;; dokumentach TeX-owych unikn±æ jednoliterowych spójników na koñcach linii,
+;;; co jest wymagane przez polskie (i czeskie) regu³y typograficzne.
+
+;;; Pakiet ten dostarcza dwu funkcjonalno¶ci.  Pierwsz± z nich jest
+;;; sprawdzenie (istniej±cego) tekstu i zasugerowanie dodania brakuj±cych
+;;; tyld.  Jest ona implementowana przez komendê `tex-hard-spaces', za pomoc±
+;;; `query-replace-regexp'.  Tê sam± (a nawet rozszerzon±) funkcjonalno¶æ
+;;; znale¼æ mo¿na w pakiecie `tildify' (UWAGA: domy¶lne ustawienia w tym
+;;; pakiecie s± dostosowane do jêzyka czeskiego).
+
+;;; Drug± z funkcjonalno¶ci jest automatyczne, wpisywanie tyld po
+;;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest ona
+;;; implementowana przez komendê `tex-magic-space', któr± nale¿y podpi±æ do
+;;; spacji.  Do aktywowania tej funkcjonalno¶ci mo¿na u¿yæ
+;;; `tex-toggle-magic-space'.  Funkcjonalno¶æ ta jest automatycznie w³±czana w
+;;; trybach TeX-owych za pomoc± `eval-after-load'.
+
 ;;; Dokumentacja i komentarze: Jakub Narêbski.
 
 
-;;; Notes[pl]:
+;;; Notes:
 
 ;;; TO DO: Zrobiæ wolniejsz± wersjê `tex-magic-space', która bêdzie
 ;;;        np. sprawdza³a czy jeste¶my w trybie matematycznym tak jak
@@ -73,7 +84,7 @@
 ;;; Ewentualnie mo¿na by u¿ywaæ `texmathp' (które jest automatycznie ³adowane
 ;;; je¶li AUCTeX jest zainstalowany) wewn±trz "pu³apki" `condition-case' lub
 ;;; `unwind-protect', z czego oba rozwi±zania umo¿liwiaj± skorzystanie ze
-;;; sprawdzania `tex-math-face' je¶li `texmathp' jest niedostêpne.  
+;;; sprawdzania `tex-math-face' je¶li `texmathp' jest niedostêpne.
 ;;;
 ;;; PRZYK£AD (testowy):
 ;;; (defun test-math ()
@@ -100,8 +111,10 @@
 
 
 ;;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
-;;;`tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
+;;; `tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
 
+
+;;; History:
 
 ;;; Code:
 
@@ -116,10 +129,10 @@
 ;; spacjê, po jednoliterowych [polskich] spójnikach w ca³ym buforze.
 ;; Poni¿sza zmienna definiuje wyra¿enie regularne u¿ywane w `tex-hard-spaces'
 (defvar tex-hard-spaces-regexp "\\<\\([aeiouwzAEIOUWZ]\\)\\s +"
-  ;; Pierwsza linia dokumentacji jest zbyt d³uga: 
+  ;; Pierwsza linia dokumentacji jest zbyt d³uga:
   ;; nie powinna przekraczaæ 67 znaków (jest 76 - 3 = 73)
   "*Regular expression which detects single [aeiouwz] for `tex-hard-spaces'.
-The part of regular expression which matches string to be saved 
+The part of regular expression which matches string to be saved
 should be in parentheses, so the replace part \\\\1~ will work.
 
 Used as first argument to `query-replace-regexp'.")
@@ -127,7 +140,7 @@ Used as first argument to `query-replace-regexp'.")
 ;; Zwyk³e `query-replace-regexp', czyli C-M-% dla odpowiedniego
 ;; wyra¿enia regularnego, zapisanego w `tex-hard-spaces-regexp'
 (defun tex-hard-spaces ()
-  ;; Pierwsza linia dokumentacji 
+  ;; Pierwsza linia dokumentacji
   ;; nie powinna przekraczaæ 67 znaków (jest 68 - 3 = 65)
   "Replaces whitespace characters after single-letter word with `~'.
 Replaces whitespace characters following single-letter conjunctions by `~',
@@ -136,8 +149,8 @@ Uses `tex-hard-spaces-regexp' for single-letter conjunctions detection.
 
 It can be used to bind single-letter conjunction to the word following it in
 the existing text, using `~' (the TeX non-breakable space), so there are no
-single-letter conjunctions at the end of the line (known as 'orphans'). 
-For on-the-fly 'orphans' elimination bind SPC to `tex-magic-space' 
+single-letter conjunctions at the end of the line (known as 'orphans').
+For on-the-fly 'orphans' elimination bind SPC to `tex-magic-space'
 using \\[tex-toggle-magic-space].
 
 It is implemented using `query-replace-regexp'."
@@ -155,13 +168,13 @@ It is implemented using `query-replace-regexp'."
 ;; UWAGA: [czasami] polskie literki s± traktowane jako koniec s³owa dla 8bit
 ;;        tzn. przy u¿yciu `standard-display-european' do ich wprowadzania.
 ;;        Bêdê próbowac znale¼æ dok³adne warunki wyst±pienia b³edu.
-;; TO DO: U¿yæ `defcustom' 
+;; TO DO: U¿yæ `defcustom'
 ;; TO DO: Dodaæ tex-magic-space-regexp-len zamiast 2 (np. dowi±zywanie 'tys.')
 (defvar tex-magic-space-regexp "\\<[aeiouwzAEIOUWZ]\\'"
-  ;; Pierwsza linia dokumentacji jest zbyt d³uga: 
+  ;; Pierwsza linia dokumentacji jest zbyt d³uga:
   ;; nie powinna przekraczaæ 67 znaków (jest 76 - 3 = 73)
   "*Regular expression which detects single [aeiouwz] for `tex-magic-space'.
-`tex-magic-space' inserts `~' if this expression matches two characters before point, 
+`tex-magic-space' inserts `~' if this expression matches two characters before point,
 otherwise it inserts the key it is bound to (\\[tex-magic-space]), usually SPC.
 
 This regular expression should end with [aeiouwzAEIOUWZ]\\\\' to match possible
@@ -171,26 +184,26 @@ The part before [aeiouwzAEIOUWZ] should match word beginning/boundary.
 ATTENTION: sometimes in unibyte mode the non US-ASCII letters are considered
 word boundary, even when they are word constituents.")
 
-(defun tex-magic-space (prefix) 
-  ;; Pierwsza linia dokumentacji jest zbyt d³uga: 
+(defun tex-magic-space (prefix)
+  ;; Pierwsza linia dokumentacji jest zbyt d³uga:
   ;; nie powinna przekraczaæ 67 znaków (jest 72 - 3 = 69)
-  "Magic-space - inserts non-breakable space after a single-letter word. 
+  "Magic-space - inserts non-breakable space after a single-letter word.
 Uses `tex-magic-space-regexp' for single-letter words detection.
 
 Works well with auto filling unless `~' is in the table `auto-fill-chars',
 in which case `~' is inserted but might be followed by line break.
 Works with abbrev expansion with the following exceptions:
- - doesn't do abbrev expansion if abbrev is single letter word 
+ - doesn't do abbrev expansion if abbrev is single letter word
    and `~' is word constituent (according to current syntax table)
  - abbrevs with expansion ending with single-letter word won't have
    the SPC following single-letter word substituted with `~'
 
-Bind it to space using \\[local-set-key] SPC tex-magic-space 
+Bind it to space using \\[local-set-key] SPC tex-magic-space
 or `tex-toggle-magic-space' (\\[tex-toggle-magic-space]).
 
 See also: `tex-hard-spaces'"
   (interactive "p")	                ; Prefix arg jako liczba.  Nie robi I/O.
-  (when (string-match 
+  (when (string-match
 	 tex-magic-space-regexp	        ; wyra¿enie rozpoznaj±ce samotne spójniki
 	 (buffer-substring (max (point-min) (- (point) 2)) (point)))
     (setq last-command-char ?~))	; wstawiamy `~' zamiast SPC
@@ -198,7 +211,7 @@ See also: `tex-hard-spaces'"
 
 
 ;;; ----------------------------------------------------------------------
-;;; Toggle magic space by Jakub Narêbski <jnareb@fuw.edu.pl>, 
+;;; Toggle magic space by Jakub Narêbski <jnareb@fuw.edu.pl>,
 ;;; modifications based on code by Adam P. <adamp_at@at_ipipan.waw.pl>
 
 ;; Przypisuje/wy³±cza przypisanie tex-magic-space do spacji,
@@ -206,7 +219,7 @@ See also: `tex-hard-spaces'"
 ;; TO DO: Zrobiæ z tego minor mode.
 (defun tex-toggle-magic-space (&optional arg)
   "Toggle whether SPC is bound to `tex-magic-space'.
-With prefix argument ARG, bind SPC to `tex-magic-space' if ARG is positive, 
+With prefix argument ARG, bind SPC to `tex-magic-space' if ARG is positive,
 otherwise bind SPC to `self-insert-command'.
 
 It can be used to toggle temporarily `tex-magic-space' off when writing
@@ -218,32 +231,32 @@ they do not use one common keymap)."
   (interactive "P")	                ; Prefix arg w postaci surowej.  Nie robi I/O.
   (progn			        ; u¿ywane tylko by wypisaæ komunikat
     (cond
-     ((null arg)			; Brak prefiksu
+     ((null arg)			; brak prefiksu
       (if (local-key-binding " " 'tex-magic-space)
-	  (local-unset-key " ")     
+	  (local-unset-key " ")
 	(local-set-key " " 'tex-magic-space)))
-     ((> (prefix-numeric-value arg) 0) ; Dodatni argument
+     ((> (prefix-numeric-value arg) 0) ; dodatni prefiks
       (local-set-key " " 'tex-magic-space))
-     (t				; wpp (niedodatni argument)
+     (t					; wpp (niedodatni prefiks)
       (local-unset-key " ")))
     ;; koniec cond; opisanie wyniku
     (describe-key-briefly " ")))
 
 
-;;;; ---------------------------------------------------------------------
+;;;; ======================================================================
 ;;;; Inicjalizacja dla zapobiegania powstawaniu sierotek 'w locie'
 
-;;; Initialization, by Jakub Narêbski <jnareb@fuw.edu.pl> 
+;;; Initialization by Jakub Narêbski <jnareb@fuw.edu.pl>
 ;;; and Adam P. <adamp_at@at_ipipan.waw.pl>
 
-;; C-c SPC toggles magic space:
+;; `C-c SPC' toggles magic space:
 ;; `mode-specific-map' is keymap for characters following C-c
-;; Sequences consisting of `C-c' followed by any punctuation character 
+;; Sequences consisting of `C-c' followed by any punctuation character
 ;; other than `{', `}', `<', `>', `:', `;' are allocated for minor modes.
 (define-key  mode-specific-map " " 'tex-toggle-magic-space) ; C-c SPC
 
 
-;;; Initialize SPC to `tex-magic-space' using eval-after-load
+;;; Przypisz SPC do `tex-magic-space' w odpowiednich trybach u¿ywaj±c `eval-after-load'
 ;; For AUC TeX
 (eval-after-load "tex"      '(define-key TeX-mode-map    " " 'tex-magic-space))
 (eval-after-load "latex"    '(define-key LaTeX-mode-map  " " 'tex-magic-space))
@@ -255,7 +268,7 @@ they do not use one common keymap)."
 ;; jawnie u¿ywaæ `reftex-mode-map', a nie wiadomo czy RefTeX zosta³ za³adowany
 ;(eval-after-load "reftex"   '(define-key reftex-mode-map " " 'tex-magic-space))
 
-;; Aby mo¿na by³o ³adowaæ ten plik zarówno za pomoc± 
+;; Aby mo¿na by³o ³adowaæ ten plik zarówno za pomoc±
 ;; (load "sierotki")
 ;; jak i
 ;; (requires 'sierotki)
