@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.4.2
+;; Version: 	2.4.3
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -286,7 +286,11 @@ See also: `tex-hard-spaces'"
 ;; b. a la `texmathp' lub `LaTeX-modify-environment' u¿ywane przez
 ;;    `LaTeX-environment', sprawdzanie czy jeste¶my wewn±trz jednego z
 ;;    otoczeñ lub pseudootoczeñ (\verb!...!) zdefiniowanych przez
-;;    u¿ytkownika, a la `tildify-ignored-environments-alist'
+;;    u¿ytkownika, a la `tildify-ignored-environments-alist'; je¶li u¿ywamy
+;;    AUCTeX-a to mogliby¶my u¿yæ poleceñ `LaTeX-find-matching-begin'
+;;    i `LaTeX-find-matching-end', za¶ do poleceñ czego¶ jak w `texmathp',
+;;    u¿ywaj±c `forward-list' lub `up-list', `forward-sexp' (zawiera tak¿e
+;;    s³owa, ograniczone ³añcuchy itp.) z odpowiedni± syntax table.
 ;; c. sprawdzanie czy font (face) nale¿y do okre¶lonej listy
 ;; d. zdefiniowana przez u¿ytkownika FORM (np. '(and FORM FORM))
 ;;
@@ -452,7 +456,20 @@ Used in advice `tex-magic-space-user-form'")
 
 ;;; ......................................................................
 ;;; Aktywacja porad i podobne
-(defvar tex-magic-space-checking-string (ad-is-active 'tex-magic-space)
+(defvar tex-magic-space-checking-string
+  (when (ad-is-active 'tex-magic-space)
+    (concat
+     ":"
+     (when (ad-advice-enabled
+	    (ad-find-advice 'tex-magic-space 'around 'tex-magic-space-texmathp))
+       "m")
+     (when (ad-advice-enabled
+	    (ad-find-advice 'tex-magic-space 'around 'tex-magic-space-face))
+       "f")
+     (when (ad-advice-enabled
+	    (ad-find-advice 'tex-magic-space 'around 'tex-magic-space-user-form))
+       "u")
+     ))
   "Non-nil if advices for `tex-magic-space' are active.
 Its value is string describing which advices are enabled.
 
@@ -503,8 +520,27 @@ See also: `tex-magic-space-texmathp', `tex-magic-space-face',
     (message "Advices for tex-magic-space %sctivated."
 	     (if (ad-is-active 'tex-magic-space) "a" "dea"))))
 	   
-;; see also: `ad-is-active', `ad-is-advised', `ad-has-enabled-advice',
+;; see also: `ad-is-advised', `ad-is-active', `ad-has-enabled-advice',
 ;;  `ad-get-enabled-advices', `ad-find-some-advice' and `ad-advice-enabled';       
+
+;; TO DO:
+;; 0. tex-magic-space-active, zawieraj±ca nil lub t, zale¿nie od tego czy
+;;    porady s± aktywne czy nie (aby zmienna tex-mabic-space-enabled-string
+;;    nie pe³ni³a jednocze¶nie dwu funkcji).
+;; 1. tex-magic-space-enabled-string, zamieniaj±cy dostêpne porady na string.
+;; 2. tex-magic-space-enabled-hist, zawieraj±ca historiê dla j.n.
+;; 3. tex-magic-space-toggle-enabled, w³±czaj±ca/wy³±czaj±ca dostêpne porady,
+;;    byæ mo¿e z wyj±tkiem tex-magic-space-user-form.
+;; 4. tex-magic-space-check-user-form, sprawdzaj±ce czy zmienna
+;;    tex-magic-space-user-form jest ró¿na od nil i odpowiednio
+;;    aktywuj±ce/deaktywuj±ce poradê tex-magic-space-user-form.
+
+;; TO DO: przejechaæ siê po wszystkich advices (mo¿na uwzglêdniaæ tylko
+;; klasê around) np. za pomoc± ad-dolist, pobieraj±c je np. za pomoc±
+;; (ad-get-advice-info-field 'tex-magic-space 'around), a nastêpnie
+;; sprawdziæ jak siê porada nazywa za pomoc± `ad-advice-name' i czy jest
+;; w³±czona za pomoc± `ad-advice-enabled'.
+
 
 
 ;;; ----------------------------------------------------------------------
@@ -552,6 +588,8 @@ See also command `tex-magic-space-mode' for an alternative way to use
 		     (eq (key-binding " ") (local-key-binding " ")))
 		 ""
 	       (format "; locally bound to %s" (local-key-binding " ")))
+	     ;; IDEA: mo¿na u¿yæ minor-mode-key-binding do sprawdzenia
+	     ;; w jakim trybie zosta³a zdefiniowana spacja.
 	     )))
 
 
@@ -672,9 +710,11 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 ;; Przypisz globalnie `tex-magic-space-mode' do `C-c SPC'
 ;; `mode-specific-map' to (globalna) mapa klawiatury dla prefiksu C-c
 ;; IDEA: `tex-magic-space-toggle-checking' mo¿e byæ w mapie dla TeX Magic
-;; Space mode, tzn. w `tex-magic-space-mode-map'
+;; Space mode, tzn. w `tex-magic-space-mode-map'; jako prefiksu mo¿na by
+;; u¿yæ `C-c C-SPC', a jako klawiszy " ", "m", "f", "u".
 (define-key mode-specific-map " " 'tex-magic-space-mode)
 (define-key mode-specific-map "@" 'tex-magic-space-toggle-checking)
+;; aby wpisaæ 'C-SPC' trzeba u¿yæ wektora zamiast ³añcucha, t.j. [?\C- ]
 
 ;; TO DO: przepisaæ to z powrotem na LaTeX-mode-hook, TeX-mode-hook,
 ;; reftex-mode-hook i tym podobne.  `define-key' dla odpowiedniej mapy
