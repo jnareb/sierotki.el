@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.6.2
+;; Version: 	2.6.3
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -53,7 +53,12 @@
 ;;
 ;; Then after turning on `tex-magic-space-mode' via `C-c SPC' 
 ;; the whole package will be loaded.  Attention: using autoload means
-;; that this mode _won't_ be turned on automatically in LaTeX modes.
+;; that this mode _can't_ be turned on automatically in LaTeX modes.
+;;
+;; If you want to have the TeX Magic Space mode turned on in known
+;; TeX modes put the following line in your .emacs after (require 'sierotki)
+;;
+;;    (turn-on-tex-magic-space-in-tex-modes)
 
 ;;; Installation[pl]:
 
@@ -70,8 +75,14 @@
 ;;
 ;; Wówczas po wci¶niêciu `C-c SPC' zostanie w³±czony TeX Magic Space mode
 ;; i zostanie za³adowana reszta funkcji.  Uwaga: przy u¿ywaniu
-;; automatycznego ³adowania ten tryb _nie_ bêdzie automatycznie w³±czany
+;; automatycznego ³adowania ten tryb _nie mo¿e_ byæ automatycznie w³±czany
 ;; w trybach LaTeX-owych.
+;;
+;; Je¶li chcesz by TeX Magic Space mode by³ automatycznie w³±czany 
+;; w znanych trybach TeX-owych dodaj nastêpuj±c± linijkê do swojego pliku
+;; .emacs po (require 'sierotki)
+;;
+;;    (turn-on-tex-magic-space-in-tex-modes)
 
 
 ;;; Commentary:
@@ -142,14 +153,14 @@
 ;; Turning on and activation the `tex-magic-space-texmathp' advice or its
 ;; equivalent (with the standard configuration for `texmathp') makes
 ;; `tex-magic-space' around 10 times slower
-;; (measured using "elp" package).
+;; (measured using "elp" package).  [This info is out-of-date.]
 
 ;;; Notes[pl]:
 
 ;; W³±czanie i aktywacja porady `tex-magic-space-texmathp', lub jej
 ;; odpowiednika (ze standardowymi warto¶ciami zmiennych dla `texmathp')
 ;; powoduje oko³o 10-krotne zwolnienie dzia³ania `tex-magic-space'
-;; (zmierzono za pomoca pakietu "elp").
+;; (zmierzono za pomoca pakietu "elp").  [Ta informacja jest nieaktualna].
 
 
 ;;; To do[pl]:
@@ -177,6 +188,14 @@
 ;;
 ;; TO DO: Dodaæ `tex-magic-space-checking-why' (a la `texmathp-why'), które
 ;;        bêdzie podawa³o dlaczego magiczna spacja jest nieaktywna.
+;;
+;; TO DO: Przywróciæ tym razem jako osobn± funkcjê sprawdzanie jak pokolorowany
+;; (za pomoc± `font-lock') jest bie¿±cy obszar, i odpowiednio nieaktywowanie
+;; g³ównej czê¶ci `tex-magic-space'.
+;;
+;; TO DO: Napisaæ post-poradê (after advice) do rozwijania skrótów w
+;; `abbrev-mode', tak by w przypadku rozwiniêæ koñcz±cych siê na jednoliterowe
+;; spójniki dodawana by³a tylda zamiast spacji która wyzwoli³a rozwiniêcie.
 ;;
 ;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
 ;;
@@ -218,7 +237,8 @@
 ;;
 ;; W wyniku porównania z inn± implementacj± magicznej spacji (`spacja')
 ;; z artyku³u "GNU Emacs Lisp" rzyjontka na debian.otwarte.pl
-;; http://debian.otwarte.pl/article.php?aid=39
+;; http://debian.otwarte.pl/article.php?aid=39 
+;; (obecnie http://www.debianusers.pl/article.php?aid=36)
 ;; (w szczególno¶ci innego jej zachowania) powsta³o pytanie o to, jakie
 ;; w³asno¶ci powinno mieæ `tex-magic-space'
 ;;
@@ -467,7 +487,7 @@ otherwise deactivate it.
 Sets `tex-magic-space-do-checking'."
   (interactive "P")
   (setq tex-magic-space-do-checking
-	(if (null arg) (not tex-magic-space-checking-string)
+	(if (null arg) (not tex-magic-space-do-checking)
 	  (> (prefix-numeric-value arg) 0)))
   (if tex-magic-space-mode
       (force-mode-line-update)
@@ -533,8 +553,7 @@ Sets `tex-magic-space-do-checking'."
 ;;;		:button   (cons :toggle tex-magic-space-mode)))
   (unless (assq 'tex-magic-space-mode minor-mode-alist)
     (setq minor-mode-alist
-	  (cons '(tex-magic-space-mode (" ~" (tex-magic-space-checking-string
-					      tex-magic-space-checking-string)))
+	  (cons '(tex-magic-space-mode (" ~" (tex-magic-space-do-checking ":Chk")))
 		;; (propertize " ~"
 		;;	       'local-map mode-line-minor-mode-keymap
 		;;	       'help-echo "mouse-3: minor mode menu")
@@ -581,7 +600,7 @@ Sets `tex-magic-space-do-checking'."
   `(add-hook ,hook 'turn-on-tex-magic-space-mode))
 
 (defmacro tex-magic-space-mode-initialize (hooks)
-  "Add `(setq 'tex-magic-space-mode t)' to each of HOOKS."
+  "Add `turn-on-tex-magic-space-mode' to each of HOOKS."
   `(dolist (hook ,hooks)
      (tex-magic-space-mode-add-to-hook hook)))
 
@@ -590,19 +609,19 @@ Sets `tex-magic-space-do-checking'."
     tex-mode-hook			; for tex-mode
     reftex-mode-hook			; for RefTeX minor mode
     bibtex-mode-hook)			; for BibTeX
-  "List of hooks to which add turning on TeX Magic Space minor mode.
-You must set this using (setq tex-magic-space-mode-hooks-list LIST) before
-loading this file i.e. before (require 'sierotki).")
+  "List of hooks to which add turning on TeX Magic Space minor mode.")
 
-(tex-magic-space-mode-initialize tex-magic-space-mode-hooks-list)
+(defun turn-on-tex-magic-space-in-tex-modes ()
+  "Turn on TeX Magic Space mode automatically in TeX modes.
+Adds `turn-on-tex-magic-space-mode' to the hooks listed in the
+variable `tex-magic-space-mode-hooks-list'."
+  (tex-magic-space-mode-initialize tex-magic-space-mode-hooks-list))
 
 
 ^L
 ;;;; ======================================================================
 ;;;; Announce
 ;;;; Zakoñczenie
-;; Aby mo¿na by³o ³adowaæ ten plik zarówno za pomoc±
-;; (load "sierotki") jak i (requires 'sierotki)
 
 (provide 'sierotki)
 
