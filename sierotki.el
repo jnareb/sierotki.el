@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.5.1
+;; Version: 	2.5.2
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -533,7 +533,8 @@ You can set it directly or use the command `tex-magic-space-mode'.")
 
 (defvar tex-magic-space-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key tex-magic-space-mode-map " " 'tex-magic-space)
+    (define-key map " " 'tex-magic-space)
+    (define-key map [?\C-c ?\C- ] 'tex-magic-space-toggle-checking)
     map)
   "Keymap for TeX Magic Space mode, containing only entry for SPC.")
 
