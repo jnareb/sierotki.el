@@ -6,7 +6,7 @@
 ;;	Jakub Narebski <jnareb@fuw.edu.pl>
 ;;	Adam P. <adamp_at@at_ipipan.waw.pl>
 ;; Maintainer: Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 1.3
+;; Version: 1.3.1
 ;; Keywords: tex, wp
 ;; Created: 03-11-1999
 
@@ -23,8 +23,8 @@
 ;;; Hard spaces by Ryszard Kubiak <rysiek@ipipan.gda.pl>
 ;;; Modified by Jakub Narêbski <jnareb@fuw.edu.pl>
 
-;; Introduce (interactively) tilde characters (\TeX's hard-space ~)
-;; after one-letter Polish articles in the entire buffer.
+;; Zastêpuje znaki odstêpu przez znaki tyldy `~', czyli TeX-ow± nie³amliw±
+;; spacjê, po jednoliterowych [polskich] spójnikach w ca³ym buforze.
 ;; Poni¿sza zmienna definiuje wyra¿enie regularne u¿ywane w `tex-hard-spaces'
 (defvar tex-hard-spaces-regexp "\\<\\([aeiouwzAEIOUWZ]\\)\\s +"
   "*Regular expression which detects single [aeiouwz] for `tex-hard-spaces'.
@@ -35,8 +35,18 @@ Used as first argument to `query-replace-regexp'.")
 
 ;; Zwyk³e `query-replace-regexp', czyli C-M-% dla odpowiednich wyra¿eñ regularnych
 (defun tex-hard-spaces ()
-  "Replaces space after single-letter word with '~', 
-the TeX non-breakable space"
+  "Replaces spaces after single-letter word with '~', the TeX non-breakable space.
+Replaces whitespace characters following single-letter conjunctions by `~',
+the TeX non-breakable space in whole buffer, interactively.
+Uses `tex-hard-spaces-regexp' for single-letter conjunctions detection.
+
+It can be used to bind single-letter conjunction to the word following it in
+the existing text, using `~' (the TeX non-breakable space), so there are no
+single-letter conjunctions at the end of the line (known as 'orphans'). 
+For on-the-fly 'orphans' elimination bind SPC to `tex-magic-space' 
+using \\[tex-toggle-magic-space].
+
+It is implemented using `query-replace-regexp'."
  (interactive)
  (query-replace-regexp tex-hard-spaces-regexp
                        "\\1~"))
@@ -45,16 +55,32 @@ the TeX non-breakable space"
 ;;;; ======================================================================
 ;;;; Zapobieganie powstawaniu sierotek 'w locie'
 
+;; UWAGA: [czasami] polskie literki s± traktowane jako koniec s³owa dla 8bit
+;;        tzn. przy u¿yciu `standard-display-european' do ich wprowadzania.
+;;        Bêdê próbowac znale¼æ dok³adne warunki wyst±pienia b³edu.
+;; TO DO: U¿yæ `defcustom'
 (defvar tex-magic-space-regexp "\\<[aeiouwzAEIOUWZ]\\'"
-  "*Regular expression which detects single [aeiouwz] for `tex-magic-space'.
-This regular expression should end with \\\\' to match against \"point\",
-and begin with something matching against word boundary.
+ "*Regular expression which detects single [aeiouwz] for `tex-magic-space'.
+`tex-magic-space' inserts `~' if this expression matches two characters before point, 
+otherwise it inserts the key it is bound to (\\[tex-magic-space]), usually SPC.
 
-Used in comparing with part of buffer before point.")
+This regular expression should end with [aeiouwzAEIOUWZ]\\\\' to match possible
+single letter conjunction against the letter directly before the point.
+The part before [aeiouwzAEIOUWZ] should match word beginning/boundary.
+
+ATTENTION: sometimes in unibyte mode the non US-ASCII letters are considered
+word boundary, even when they are word constituents.")
 
 ;;; Magic space by Michal Jankowski <michalj@fuw.edu.pl>
+;;; Modified by Jakub Narêbski <jnareb@fuw.edu.pl>
 (defun tex-magic-space () 
-  "Magic-space - inserts non-breakable space after a single-letter word." 
+  "Magic-space - inserts non-breakable space after a single-letter word. 
+Uses `tex-magic-space-regexp' for single-letter words detection.
+
+Bind it to space using \\[local-set-key] SPC tex-magic-space 
+or `tex-toggle-magic-space' (\\[tex-toggle-magic-space]).
+
+See also: `tex-hard-spaces'"
   (interactive)
   (if (string-match 
        tex-magic-space-regexp
@@ -70,8 +96,14 @@ Used in comparing with part of buffer before point.")
 ;; Przypisuje/wy³±cza przypisanie tex-magic-space do spacji,
 ;; (przydatne przy pisaniu matematyki), [tylko dla trybów LaTeX-owych]
 (defun tex-toggle-magic-space ()
-  "Toggles TeX magic space, which inserts non-breakable space after a
-single-letter word"
+  "Toggle whether SPC is bound to `tex-magic-space'.
+
+It can be used to toggle temporarily `tex-magic-space' off when writing
+equations (with e.g. `i' as index), then turn it on in main text.
+
+Uses `current-local-map' or `current-local-map', so it currently works with 
+any mode, not only with LaTeX modes (there are several of them and they do not
+use one common keymap)."
   (interactive)
   (let 
     ((map (or (current-local-map)
