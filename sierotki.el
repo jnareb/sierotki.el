@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 	2.3.3
+;; Version: 	2.3.4
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	tex, wp
@@ -285,18 +285,18 @@ In this (buffer local) mode `\\[tex-magic-space]' runs the command
   (force-mode-line-update))
 
 ;;; something like this was found in reftex
-(if (or 
-     ;; in FSF Emacs `add-minor-mode' is defined in file `easy-mmode'
-     (featurep 'easy-mmode)     
-     ;; in XEmacs it is defined in `modeline', which doesn't do `provide'
-     (fboundp 'add-minor-mode)) 
+(if (fboundp 'add-minor-mode) 
 
-    ;; In Emacs this is XEmacs compatibility function.
+    ;; In Emacs this is XEmacs compatibility function (?) defined in subr.
     ;; Use it so that we get the extras i.e. mode-line minor mode menu
     (progn
       ;; This should make "TeX Magic Space" entry appear only for buffers in
-      ;; LaTeX-mode or TeX-mode as its major mode; but it doesn't work in Emacs
-      ;; Neither :included nor :menu-tag property doesn't work for XEmacs 21.4.6
+      ;; LaTeX-mode or TeX-mode as its major mode; but it doesn't work in Emacs 21.2.1
+      ;; neither with "`(memq ...)" like in reftex-mode (for all modes) 
+      ;; nor with "(memq ...)", i.e. unquoted, like in ada-mode (for no modes).
+      ;; add-minor-mode tests :included property simply with (get FOO :included).
+      ;; Neither :included nor :menu-tag property doesn't seem to work for XEmacs 21.4.6;
+      ;; it simply lists all (?) available minor modes
       (put 'tex-magic-space-mode :included '(memq major-mode '(latex-mode tex-mode)))
       (put 'tex-magic-space-mode :menu-tag "TeX Magic Space")
       ;; IDEA: tooltip, toggle magic space as toggle read only in modeline
