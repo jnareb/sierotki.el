@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.6.3
+;; Version: 	2.6.4
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -180,6 +180,7 @@
 ;;
 ;; TO DO: Zgadywanie, czy nale¿y w³±czyæ TeX Magic Space mode (czy w inny
 ;; sposób uaktywniæ magiczn± spacjê) na podstawie nag³ówka pliku TeX-owego.
+;; Lub napisanie odpowiednich plików dla AUCTeX-a: pakiety polski i babel.
 ;;
 ;; TO DO: U¿yæ `defcustom' do zdefiniowania zmiennych (via `customize').
 ;;
@@ -196,6 +197,16 @@
 ;; TO DO: Napisaæ post-poradê (after advice) do rozwijania skrótów w
 ;; `abbrev-mode', tak by w przypadku rozwiniêæ koñcz±cych siê na jednoliterowe
 ;; spójniki dodawana by³a tylda zamiast spacji która wyzwoli³a rozwiniêcie.
+;;
+;; TO DO: Opis TeX Magic Space mode brany jest z docstring
+;; `tex-magic-space-mode'.  Je¶li da siê go wpisaæ gdzie¶ indziej zrobiæ to.
+;; Je¶li nie, to rozszerzyæ opis w docstringu `tex-magic-space-mode'.
+;;
+;; TO DO: Przetestowaæ testy, byæ mo¿e dodaæ sprawdzanie w jakim trybie jeste¶my!
+;;
+;; TO DO: w `tex-magic-space' zamiast sprawdzania czy element listy
+;; nadaje siê do `funcall' za pomoc± `fboundp' owin±c wszystko w
+;; `condition-case' czy co¶ w tym stylu.
 ;;
 ;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
 ;;
@@ -277,7 +288,7 @@
 
 ;;; Code:
 
-
+
 ;;;; ======================================================================
 ;;;; Add non-breakable spaces in existing document, interactively.
 ;;;; Usuwanie sierotek w istniej±cym dokumencie, interaktywne.
@@ -315,7 +326,7 @@ It is implemented using `query-replace-regexp'."
  (query-replace-regexp tex-hard-spaces-regexp
                        "\\1~"))
 
-
+
 ;;;; ======================================================================
 ;;;; On-the-fly inserting of non-breakable spaces.
 ;;;; Zapobieganie powstawaniu sierotek 'w locie'
@@ -323,7 +334,7 @@ It is implemented using `query-replace-regexp'."
 ;;; Magic space by Michal Jankowski <michalj@fuw.edu.pl>
 ;;; Modified by Jakub Narêbski <jnareb@fuw.edu.pl>
 
-
+
 ;;; ----------------------------------------------------------------------
 ;;; Tests for `tex-magic-space'
 ;;; Testy dla `tex-magic-space'
@@ -335,7 +346,9 @@ Returns nil or the pair (POINT-VERB-BEG . POINT-VERB-END) of positions where
 command argument begins if \\verb is unfinished (has no closing delimiter).
 
 This command uses the fact that the argument to \\verb cannot contain end of
-line characters.  Does not work with nested \\verb s."
+line characters.  Does not work with nested \\verb s.
+
+May not work in XEmacs."
   (interactive)
   (let ((point (point))
 	beg
@@ -368,14 +381,14 @@ Set by `tex-magic-space-toggle-checking'")
 
 (defvar tex-magic-space-tests 
   (list
-   'texinverbp
-   (if (fboundp 'texmathp) 'texmathp))
+   (unless (and (boundp 'running-xemacs) running-xemacs) 'texinverbp)
+   (if (or (featurep 'tex-site) (fboundp 'texmathp)) 'texmathp))
   "List of functions which are invoked, in order, to determine whether
 `tex-magic-space' could insert a ~ (i.e., a tex non-breakable
 space).  The tilde can be inserted only when every function returns
-a nil value")
+a nil value.")
 
-
+
 ;;; ----------------------------------------------------------------------
 ;;; On-the-fly tildes insertion
 ;;; Wstawianie tyld w locie
@@ -421,7 +434,8 @@ See also: `tex-hard-spaces'"
   (interactive "p")	               ; Prefix arg jako liczba.  Nie robi I/O.
   ;; Tests
   (unless (and tex-magic-space-do-checking
-	       (some (lambda (f) (funcall f prefix)) tex-magic-space-tests))
+	       (some (lambda (f) (and (fboundp f) (funcall f))) 
+		     tex-magic-space-tests))
     ;; tests failed
     (when (string-match
 	   tex-magic-space-regexp      ; wyra¿enie rozpoznaj±ce samotne spójniki
@@ -435,7 +449,7 @@ See also: `tex-hard-spaces'"
   (let ((tex-magic-space-do-checking nil))
     (tex-magic-space prefix)))
 
-
+
 ;;; ----------------------------------------------------------------------
 ;;; The TeX Magic Space mode definition and initialization
 ;;; Definicja trybu i inicjalizacja
@@ -449,7 +463,9 @@ You can set it directly or use the command `tex-magic-space-mode'.")
 (defvar tex-magic-space-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map " " 'tex-magic-space)
-    (define-key map [?\C-c ?\C- ] 'tex-magic-space-toggle-checking)
+    (if (and (boundp 'running-xemacs) running-xemacs)
+	(define-key map [(control c) (control space)] 'tex-magic-space-toggle-checking)
+      (define-key map [?\C-c ?\C- ] 'tex-magic-space-toggle-checking))
     map)
   "Keymap for TeX Magic Space mode.")
 
@@ -563,7 +579,7 @@ Sets `tex-magic-space-do-checking'."
 	  (cons (cons 'tex-magic-space-mode tex-magic-space-mode-map)
 		minor-mode-map-alist))))
 
-
+
 ;;;; ======================================================================
 ;;;; Inicjalizacja dla zapobiegania powstawaniu sierotek 'w locie'
 
@@ -618,7 +634,7 @@ variable `tex-magic-space-mode-hooks-list'."
   (tex-magic-space-mode-initialize tex-magic-space-mode-hooks-list))
 
 
-^L
+
 ;;;; ======================================================================
 ;;;; Announce
 ;;;; Zakoñczenie
