@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 	2.3.2
+;; Version: 	2.3.3
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	tex, wp
@@ -294,10 +294,14 @@ In this (buffer local) mode `\\[tex-magic-space]' runs the command
     ;; In Emacs this is XEmacs compatibility function.
     ;; Use it so that we get the extras i.e. mode-line minor mode menu
     (progn
+      ;; This should make "TeX Magic Space" entry appear only for buffers in
+      ;; LaTeX-mode or TeX-mode as its major mode; but it doesn't work in Emacs
+      ;; Neither :included nor :menu-tag property doesn't work for XEmacs 21.4.6
       (put 'tex-magic-space-mode :included '(memq major-mode '(latex-mode tex-mode)))
       (put 'tex-magic-space-mode :menu-tag "TeX Magic Space")
       ;; IDEA: tooltip, toggle magic space as toggle read only in modeline
       ;; :help-echo property, :local-map for toggle, maybe :display, :*face
+      ;; via propertize function (but try to use :face instead of 'face)
       (add-minor-mode 'tex-magic-space-mode " ~" tex-magic-space-mode-map))
 
   ;; The standard way
