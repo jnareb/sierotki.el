@@ -1,19 +1,21 @@
 ;;; sierotki.el --- Introduce tildes after single-letter words
 
-;; Copyright (C) 2002  Michal Jankowski, Jakub Narebski
+;; Copyright (C) 2002  Micha³ Jankowski, Jakub Narêbski
 
-;; Author: Ryszard Kubiak <rysiek@ipipan.gda.pl>
-;;	Michal Jankowski <michalj@fuw.edu.pl>
-;;	Jakub Narebski <jnareb@fuw.edu.pl>
-;;	Adam P. <adamp_at@at_ipipan.waw.pl>
-;; Maintainer: Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 2.2
-;; Keywords: tex, wp
-;; Created: 03-11-1999
+;; Author: 	Ryszard Kubiak <rysiek@ipipan.gda.pl>
+;;		Micha³ Jankowski <michalj@fuw.edu.pl>
+;;		Jakub Narêbski <jnareb@fuw.edu.pl>
+;;		Adam Przepiórkowski <adamp_at@at_ipipan.waw.pl>
+;; Maintainer: 	Jakub Narebski <jnareb@fuw.edu.pl>
+;; Version: 	2.3.1
+;; RCS version:	$Revision$
+;; Date: 	$Date$
+;; Keywords: 	tex, wp
+;; Created: 	03-11-1999
 
 ;; $Id$
 
-;; Copyright (C) 2002  Michal Jankowski, Jakub Narebski
+;;{{{ GPL
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -30,6 +32,7 @@
 ;; Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ;; MA 02111-1307 USA
 
+;;}}}
 
 ;;; Commentary:
 
@@ -244,34 +247,107 @@ they do not use one common keymap)."
 
 
 ;;;; ======================================================================
+;;;; `tex-magic-space-mode': TeX Magic Space as buffer local minor mode
+(defvar tex-magic-space-mode nil
+  "Determines if TeX Magic Space mode is active.")
+(make-variable-buffer-local 'tex-magic-space-mode)
+
+(defvar tex-magic-space-mode-map (make-sparse-keymap)
+  "Keymap for TeX Magic Space mode, containing only entry for SPC.")
+
+(define-key tex-magic-space-mode-map " " 'tex-magic-space)
+
+;;;###autoload
+(defun turn-on-tex-magic-space-mode ()
+  "Turn on TeX Magic Space mode."
+  (tex-magic-space-mode t))
+
+;;;###autoload
+(defun tex-magic-space-mode (&optional arg)
+  "Toggle TeX Magic Space mode.
+With prefix argument ARG, turn on if positive, otherwise off.
+Returns non-nil if the new state is enabled.
+
+\\<tex-magic-space-mode-map>
+In this (buffer local) mode `\\[tex-magic-space]' runs the command
+`tex-magic-space'."
+  (interactive "P")
+;;;  (setq tex-magic-space-mode 		
+;;;	(if (null arg) (not tex-magic-space-mode)
+;;;	  (> (prefix-numeric-value arg) 0))))
+  (setq tex-magic-space-mode 
+	(not (or (and (null arg) tex-magic-space-mode)
+		 (<= (prefix-numeric-value arg) 0))))
+  (force-mode-line-update))
+
+;;; something like this was found in reftex
+(if (or 
+     ;; in FSF Emacs `add-minor-mode' is defined in file `easy-mmode'
+     (featurep 'easy-mmode)     
+     ;; in XEmacs it is defined in `modeline', which doesn't do `provide'
+     (fboundp 'add-minor-mode)) 
+
+    ;; In Emacs this is XEmacs compatibility function.
+    ;; Use it so that we get the extras i.e. mode-line minor mode menu
+    (progn
+      (put 'tex-magic-space-mode :included '(memq major-mode '(latex-mode tex-mode)))
+      (put 'tex-magic-space-mode :menu-tag "TeX Magic Space")
+      ;; IDEA: tooltip, toggle magic space as toggle read only in modeline
+      ;; :help-echo property, :local-map for toggle, maybe :display, :*face
+      (add-minor-mode 'tex-magic-space-mode " ~" tex-magic-space-mode-map))
+
+  ;; The standard way
+  (unless (assq 'tex-magic-space-mode minor-mode-alist)
+    (setq minor-mode-alist 
+	  (cons '(tex-magic-space-mode " ~") 
+		minor-mode-alist)))
+  (unless (assq 'tex-magic-space-mode-map minor-mode-map-alist)
+    (setq minor-mode-map-alist 
+	  (cons (cons 'tex-magic-space-mode tex-magic-space-mode-map) 
+		minor-mode-map-alist))))
+
+
+;;;; ======================================================================
 ;;;; Inicjalizacja dla zapobiegania powstawaniu sierotek 'w locie'
 
 ;;; Initialization by Jakub Narêbski <jnareb@fuw.edu.pl>
-;;; and Adam P. <adamp_at@at_ipipan.waw.pl>
+;;; and Adam Przepiórkowski <adamp_at@at_ipipan.waw.pl>
 
+;;;{{{ Old version
 ;; `C-c SPC' toggles magic space:
 ;; `mode-specific-map' is keymap for characters following C-c
 ;; Sequences consisting of `C-c' followed by any punctuation character
 ;; other than `{', `}', `<', `>', `:', `;' are allocated for minor modes.
-(define-key  mode-specific-map " " 'tex-toggle-magic-space) ; C-c SPC
-
+;(define-key mode-specific-map " " 'tex-toggle-magic-space) ; C-c SPC
 
 ;;; Przypisz SPC do `tex-magic-space' w odpowiednich trybach u¿ywaj±c `eval-after-load'
 ;; For AUC TeX
-(eval-after-load "tex"      '(define-key TeX-mode-map    " " 'tex-magic-space))
-(eval-after-load "latex"    '(define-key LaTeX-mode-map  " " 'tex-magic-space))
+;(eval-after-load "tex"      '(define-key TeX-mode-map    " " 'tex-magic-space))
+;(eval-after-load "latex"    '(define-key LaTeX-mode-map  " " 'tex-magic-space))
 ;; For tex-mode included in Emacs
-(eval-after-load "tex-mode" '(define-key tex-mode-map    " " 'tex-magic-space))
+;(eval-after-load "tex-mode" '(define-key tex-mode-map    " " 'tex-magic-space))
 ;; For RefTeX
 ;; NOTE: RefTeX to minor mode, keymap zas³ania lokalny keymap
 ;; (np. LaTeX-mode-keymap) i aby `tex-toggle-magic-space' dzia³a³o trzeba by
 ;; jawnie u¿ywaæ `reftex-mode-map', a nie wiadomo czy RefTeX zosta³ za³adowany
-;(eval-after-load "reftex"   '(define-key reftex-mode-map " " 'tex-magic-space))
+;; Poni¿szy kawa³ek kodu powinien pozostaæ zakomentowany.
+;;(eval-after-load "reftex"   '(define-key reftex-mode-map " " 'tex-magic-space))
+;;;}}}
+
+;; Globally bind TeX Magic Space mode to `C-c SPC'
+(define-key mode-specific-map " " 'tex-magic-space-mode) ; C-c SPC
+;; Turn on TeX Magic Space for known (La)TeX modes (at loading)
+;; For AUC TeX
+(eval-after-load "tex"      '(setq tex-magic-space-mode t))
+(eval-after-load "latex"    '(setq tex-magic-space-mode t))
+;; For tex-mode included in Emacs
+(eval-after-load "tex-mode" '(setq tex-magic-space-mode t))
+;; For RefTeX
+;; NOTE: W tej wersji jest to ca³kowicie bezpieczne
+(eval-after-load "reftex"   '(setq tex-magic-space-mode t))
 
 ;; Aby mo¿na by³o ³adowaæ ten plik zarówno za pomoc±
-;; (load "sierotki")
-;; jak i
-;; (requires 'sierotki)
+;; (load "sierotki") jak i (requires 'sierotki)
 (provide 'sierotki)
 
 ;;; sierotki.el ends here
