@@ -3,7 +3,7 @@
 ;; Copyright (C) 1999-2003  Michal Jankowski, Jakub Narebski
 
 ;; Authors: 	Ryszard Kubiak   <rysiek@ipipan.gda.pl>
-;;		Micha³ Jankowski <michalj@fuw.edu.pl>
+;;		Michal Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narebski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narebski <jnareb@fuw.edu.pl>
 ;; Version: 	2.6.6
@@ -121,7 +121,7 @@
 ;; Version 2.6 (RCS revision 1.31):
 ;; * Checking if `tex-magic-space' should be active was changed from
 ;;   the around advice(s) to the conditional in main function.
-;; Version 2.6.6 (RCS revision 1.37):
+;; Version 2.6.6 (RCS revision 1.38):
 ;; * Removed Polish comments.
 
 ;;; Code:
