@@ -6,11 +6,15 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.4-rc1
+;; Version: 	2.4.0
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
-;; Keywords: 	tex, wp
+;; Keywords: 	TeX, wp
 ;; Created: 	03-11-1999
+;; URL: 	http://www.fuw.edu.pl/~jnareb/sierotki.el
+;;
+;; Compatibility:   Emacs21, XEmacs21
+;; Incompatibility:
 
 ;; $Id$
 
@@ -69,6 +73,8 @@
 
 ;;; Notes:
 
+;;; TO DO: Ulepszyæ wyra¿enie regularne b±d¼ daæ do wyboru wersjê prost±
+;;;        (i szybk±) lub skomplikowan± (i mog±c± wiêcej).
 ;;; TO DO: Zrobiæ wolniejsz± wersjê `tex-magic-space', która bêdzie
 ;;;        np. sprawdza³a czy jeste¶my w trybie matematycznym tak jak
 ;;;        `TeX-insert-dollar' za pomoc± `texmathp' z AUCTeX-a.
@@ -168,7 +174,7 @@
 
 ;; Version 2.3 (RCS revision 1.12):
 ;; * Pojawi³ siê TeX Magic Space minor mode (przypisany do `C-c SPC').
-;; Version 2.4 (RCS revision 1.21):
+;; Version 2.4 (RCS revision 1.22):
 ;; * Dodane porady i polecenie do ich w³±czana (przypisane do `C-c @'), aby
 ;;   `tex-magic-space' pozostawa³a nieaktywna tam gdzie nie trzeba (np.
 ;;   w trybie matematycznym wykrywanym za pomoc± `texmathp').
@@ -207,8 +213,10 @@ Uses `tex-hard-spaces-regexp' for single-letter conjunctions detection.
 It can be used to bind single-letter conjunction to the word following it in
 the existing text, using `~' (the TeX non-breakable space), so there are no
 single-letter conjunctions at the end of the line (known as 'orphans').
-For on-the-fly 'orphans' elimination bind SPC to `tex-magic-space'
-using \\[tex-toggle-magic-space].
+
+For on-the-fly 'tildification' bind SPC to `tex-magic-space' using
+\\[tex-toggle-magic-space], or turn on TeX Magic Space minor mode using
+command \\[tex-magic-space-mode].
 
 It is implemented using `query-replace-regexp'."
  (interactive)
@@ -246,6 +254,7 @@ word boundary, even when they are word constituents.")
   ;; Pierwsza linia dokumentacji jest zbyt d³uga:
   ;; nie powinna przekraczaæ 67 znaków (jest 72 - 3 = 69)
   "Magic-space - insert non-breakable space after a single-letter word.
+Interactively, PREFIX is the prefix arg (default 1).
 Uses `tex-magic-space-regexp' for single-letter words detection.
 
 Works well with auto filling unless `~' is in the table `auto-fill-chars',
@@ -258,7 +267,9 @@ Works with abbrev expansion with the following exceptions:
  - abbrevs with expansion ending with single-letter word won't have
    the SPC following single-letter word substituted with `~'
 
-Bind it to space using \\[local-set-key] SPC tex-magic-space
+Should not be used directly.
+
+Bind it to space using `tex-toggle-magic-space' (\\[tex-toggle-magic-space])
 or turn on TeX Magic Space minor mode using command `tex-magic-space-mode'
 \(\\[tex-magic-space-mode]).
 
@@ -275,14 +286,22 @@ See also: `tex-hard-spaces'"
 ;;; "Porady" (advices) dla `tex-magic-space'
 (eval-when-compile (require 'texmathp))
 
+;; TO DO: Dodaæ `tex-magic-space-checking-why' (a la `texmathp-why'), które
+;;        bêdzie podawa³o czemu magiczna spacja jest nieaktywna.
 ;; IDEE:
 ;; a. `texmathp', udostêpniane (enable) po za³adowaniu "texmathp"
-;; b. sprawdzanie czy font (face) nale¿y do okre¶lonej listy
-;; c. zdefiniowana przez u¿ytkownika FORM (np. '(and FORM FORM))
-;; Ad b. `memq' (u¿ywa `eq') i `member' z cl (u¿ywa `equal'); je¶li w³asno¶æ
+;; b. a la `texmathp' lub `LaTeX-modify-environment' u¿ywane przez
+;;    `LaTeX-environment', sprawdzanie czy jeste¶my wewn±trz jednego z
+;;    otoczeñ lub pseudootoczeñ (\verb!...!) zdefiniowanych przez
+;;    u¿ytkownika, a la `tildify-ignored-environments-alist'
+;; c. sprawdzanie czy font (face) nale¿y do okre¶lonej listy
+;; d. zdefiniowana przez u¿ytkownika FORM (np. '(and FORM FORM))
+;;
+;; Ad c. `memq' (u¿ywa `eq') i `member' z cl (u¿ywa `equal'); je¶li w³asno¶æ
 ;; (property) jest list± nale¿y przeiterowaæ po jej elementach (let ((idx
 ;; list)) (while idx ... (setq idx (cdr idx)))) ew. `dolist', lub u¿yæ
-;; `intersection' z pakietu CL (Common Lisp)
+;; `intersection' z pakietu CL (Common Lisp).  Na razie jest to zrobione
+;; tak, aby dzia³a³o.
 (defadvice tex-magic-space
   (around tex-magic-space-texmathp (&optional prefix) preactivate)
   "Inactive in math mode as defined by `texmathp'."
@@ -297,7 +316,8 @@ See also: `tex-hard-spaces'"
 ;; je¶li `texmathp' jest ju¿ za³adowane, mo¿emy go u¿ywaæ, w przeciwnym
 ;; wypadku wy³±czamy (disable) poradê `tex-magic-space-texmathp' i dodajemy
 ;; jej automatyczne w³±czanie po za³adowaniu pliku `texmathp'
-(unless (or (fboundp 'texmathp) (featurep 'texmathp))
+(unless (or (featurep 'sierotki) 	; file was loaded already
+	    (fboundp 'texmathp) (featurep 'texmathp))
   (ad-disable-advice 'tex-magic-space 'around 'tex-magic-space-texmathp)
   (eval-after-load "texmathp"
     '(ad-enable-advice 'tex-magic-space 'around 'tex-magic-space-texmathp)))
@@ -310,7 +330,9 @@ Defined in `tex-font' from AUCTeX and `tex-mode' from Emacs
 * tex-math-face:          Face used to highlight TeX math expressions.
 Defined in `font-latex' from AUCTeX:
 * font-latex-math-face:   Face to use for LaTeX math environments.
-* font-latex-sedate-face: Face to use for LaTeX minor keywords.")
+* font-latex-sedate-face: Face to use for LaTeX minor keywords.
+
+Used in advice `tex-magic-space-facep'")
 
 (defun nonempty-intersection (list-or-atom list)
   "Return non-nil if any element of LIST-OR-ATOM is element of LIST.
@@ -338,7 +360,8 @@ iterate over elements of LIST-OR-ATOM."
 ;; porady, w przeciwnym wypadku wy³±czamy (disable) poradê
 ;; `tex-magic-space-facep' i dodajemy jej automatyczne w³±czanie do haków
 ;; font-lock
-(unless (or (and (boundp 'global-font-lock-mode) global-font-lock-mode)
+(unless (or (featurep 'sierotki) 	; file was loaded already
+	    (and (boundp 'global-font-lock-mode) global-font-lock-mode)
 	    (and (boundp 'font-lock-mode) font-lock-mode))
   (ad-disable-advice 'tex-magic-space 'around 'tex-magic-space-facep)
   (add-hook 'font-lock-mode-hook
@@ -350,8 +373,12 @@ iterate over elements of LIST-OR-ATOM."
 
 (defvar tex-magic-space-user-form
   'nil
-  "User defined form when `tex-magic-space' should be inactive.
-Set it before loading sierotki.el.")
+  "*User defined form when `tex-magic-space' should be inactive.
+You must set it before loading sierotki.el or [re]activate advices for
+`tex-magic-space' after changing this variable using command
+`tex-magic-space-toggle-checking' (`C-u \\[tex-magic-space-toggle-checking]').
+
+Used in advice `tex-magic-space-user-form'")
 
 (defadvice tex-magic-space
   (around tex-magic-space-user-form (&optional prefix) preactivate)
@@ -370,12 +397,22 @@ Set it before loading sierotki.el.")
 ;;; ......................................................................
 ;;; Aktywacja porad i podobne
 (defvar tex-magic-space-checking-string (ad-is-active 'tex-magic-space)
-  "Non-nil if advices for `tex-magic-space' are active.")
+  "Non-nil if advices for `tex-magic-space' are active.
+Its value is string describing which advices are enabled.
+
+Set by `tex-magic-space-toggle-checking'")
 
 (defun tex-magic-space-toggle-checking (&optional arg)
   "Toggle whether `tex-magic-space' detects math mode.
 With prefix argument ARG, activate detection if ARG is positive,
-otherwise deactivate it.  Uses advice `tex-magic-space-texmathp'."
+otherwise deactivate it.  Uses advice `tex-magic-space-texmathp'.
+When advices are active, enabled advices are shown in the modeline after
+TeX Magic Space mode string, `~'.
+
+Sets `tex-magic-space-checking-string'.
+
+See also: `tex-magic-space-texmathp', `tex-magic-space-facep',
+`tex-magic-space-user-form'"
   (interactive "P")
   ;; udostêpnij (enable) poradê `tex-magic-space-user-form' je¶li
   ;; zmienna `tex-magic-space-user-form' jest ró¿ne od nil
@@ -428,7 +465,10 @@ equations (with e.g. `i' as index), then turn it on in main text.
 
 Uses local keymap i.e. major mode keymap, so it currently works with
 any mode, not only with LaTeX modes (there are several of them and
-they do not use one common keymap)."
+they do not use one common keymap).
+
+See also command `tex-magic-space-mode' for an alternative way to use
+`tex-magic-space'."
   (interactive "P")	                ; Prefix arg w postaci surowej.  Nie robi I/O.
   (progn			        ; u¿ywane tylko by wypisaæ komunikat
     (cond
@@ -560,6 +600,8 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 
 ;; Przypisz globalnie `tex-magic-space-mode' do `C-c SPC'
 ;; `mode-specific-map' to (globalna) mapa klawiatury dla prefiksu C-c
+;; IDEA: `tex-magic-space-toggle-checking' mo¿e byæ w mapie dla TeX Magic
+;; Space mode, tzn. w `tex-magic-space-mode-map'
 (define-key mode-specific-map " " 'tex-magic-space-mode)
 (define-key mode-specific-map "@" 'tex-magic-space-toggle-checking)
 
@@ -583,14 +625,21 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
   "Add `(setq 'tex-magic-space-mode t)' to HOOK."
   `(add-hook ,hook (function (lambda () (setq tex-magic-space-mode t)))))
 
-;; For AUC TeX (zapewne wystarczy 'TeX-mode-hook)
-(tex-magic-space-mode-add-to-hook 'TeX-mode-hook)
-(tex-magic-space-mode-add-to-hook 'LaTeX-mode-hook)
-;; For tex-mode included in Emacs
-(tex-magic-space-mode-add-to-hook 'tex-mode-hook)
-;; For RefTeX
-;; NOTE: W tej wersji jest to ca³kowicie bezpieczne
-(tex-magic-space-mode-add-to-hook 'reftex-mode-hook)
+(defmacro tex-magic-space-mode-initialize (hooks)
+  "Add `(setq 'tex-magic-space-mode t)' to each of HOOKS."
+  `(dolist (hook ,hooks)
+     (tex-magic-space-mode-add-to-hook hook)))
+
+(defvar tex-magic-space-mode-hooks-list
+  '(TeX-mode-hook LaTeX-mode-hook 	; for AUCTeX
+    tex-mode-hook			; for tex-mode
+    reftex-mode-hook			; for RefTeX minor mode
+    bibtex-mode-hook)			; for BibTeX
+  "List of hooks to which add turning on TeX Magic Space minor mode.
+You must set this using (setq tex-magic-space-mode-hooks-list VALUE) before
+loading this file i.e. before (require 'sierotki).")
+
+(tex-magic-space-mode-initialize tex-magic-space-mode-hooks-list)
 
 
 ;;;; ======================================================================
