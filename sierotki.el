@@ -275,6 +275,14 @@ See also: `tex-hard-spaces'"
 ;;; "Porady" (advices) dla `tex-magic-space'
 (eval-when-compile (require 'texmathp))
 
+;; IDEE: 
+;; a. `texmathp', udostêpniane (enable) po za³adowaniu "texmathp"
+;; b. sprawdzanie czy font (face) nale¿y do okre¶lonej listy
+;; c. zdefiniowana przez u¿ytkownika FORM (np. '(and FORM FORM))
+;; Ad b. `memq' (u¿ywa `eq') i `member' z cl (u¿ywa `equal'); je¶li w³asno¶æ
+;; (property) jest list± nale¿y przeiterowaæ po jej elementach (let ((idx
+;; list)) (while idx ... (setq idx (cdr idx)))) ew. `dolist', lub u¿yæ
+;; `intersection' z pakietu CL (Common Lisp)
 (defadvice tex-magic-space 
   (around tex-magic-space-texmathp (&optional prefix) preactivate)
   "Inactive in math mode as defined by `texmathp'"
@@ -377,6 +385,25 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
   (force-mode-line-update))
 
 
+;;; NOTES:
+;;; * "Hide ifdef" mode z hideif.el u¿ywa "pseudotrybu" `hide-ifdef-hiding' do
+;;;   wy¶wietlania opcjonalnego " Hiding", tzn. dodaje do `minor-mode-alist'
+;;;   (hide-ifdef-hiding . " Hiding") oprócz (hide-ifdef-mode . " Ifdef").
+;;; * "CC Mode" analogicznie, dodaje (c-auto-hungry-string
+;;;   . c-auto-hungry-string), gdzie c-auto-hungry-string to odpowiednio "/ah"
+;;;   lub analogiczne; automagicznie siê zmienia.
+;;; * elementami `minor-mode-alist' powinny byæ pary (VARIABLE STRING), gdzie
+;;;   STRING to mo¿e byæ (patrz `mode-line-format'):
+;;;   - STRING, u¿yty jak jest, z wykorzystaniem %-sth
+;;;   - SYMBOL, u¿yta jest jego warto¶æ (je¶li ró¿na od t lub nil); %-sth
+;;;     nie s± rozpoznawane gdy warto¶ci± jest string
+;;;   - (:eval FORM), FORM jest obliczana i umieszczany wynik (Emacs 21)
+;;;   - (STRING REST...), (LIST REST...), oblicz rekurencyjnie i po³±cz wyniki
+;;;   - (SYMBOL THEN ELSE) lub (SYMBOL THEN), np. u¿ycie `minor-mode-alist'
+;;;   - (WIDTH REST...), dope³nione WIDTH spacjami je¶li WIDTH > 0, skrócony 
+;;;     do -WIDTH kolumn je¶li WIDTH < 0; przyk³ad: (-3 "%p"), procent pliku
+;;; * wiêkszo¶æ trybów "rêcznie" dodaje siê do modeline...
+
 ;;; 'Zarejestrowanie' trybu; na podstawie kodu z reftex.el
 (if (fboundp 'add-minor-mode)
     ;; Je¶li dostêpna jest funkcja `add-minor-mode' (w FSF Emacs jest to funkcja
@@ -392,15 +419,32 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 							       tex-mode)))
       ;; W³asno¶æ (property) :menu-tag podaje tekst pojawiaj±cy siê w minor mode
       ;; menu w modeline; w XEmacs 21.4.6-7 nie daje ¿adnego efektu, w minor
-      ;; mode menu s± wszystkie minor mode, ten tryb jako jako "tex-magic-space-mode"
+      ;; mode menu s± wszystkie minor mode, ten tryb jako "tex-magic-space-mode"
+      ;; IDEA: mo¿na by dodaæ do 'tex-magic-space-mode w³asno¶æ
+      ;; `menu-enable'; 
+;;;   (put 'tex-magic-space-mode 'menu-enable '(memq major-mode '(latex-mode
+;;;							          tex-mode)))
+      ;; je¶li `add-minor-mode' u¿ywa `menu-item' to u¿yæ w³asno¶ci :visible
+      ;; FORM lub :included FORM, :key-sequence KEY (aby przyspieszyæ ³adowanie)
+      ;; NOTE: `add-minor-mode' u¿ywa (define-key mode-line-menu... :button ...)
       (put 'tex-magic-space-mode :menu-tag "TeX Magic Space")
       ;; IDEA: tutaj mo¿na by dodaæ za pomoc± funkcji `propertize' dodatkowe
       ;; w³asno¶ci typu :help-echo, :local-map, :display czy :face
       (add-minor-mode 'tex-magic-space-mode " ~" tex-magic-space-mode-map))
   ;; Standardowy sposób dodania minor mode, za "Emacs Lisp Reference Manual"
+;;;(define-key mode-line-mode-menu
+;;; (vector 'tex-magic-space-mode)
+;;; ;; mo¿na by u¿yæ ` do "cytowania" (quote) tylko czê¶ci
+;;; (list 'menu-item "TeX Magic Space" 
+;;;		'tex-magic-space-mode
+;;;		:visible '(memq major-mode '(latex-mode tex-mode))
+;;;		:button   (cons :toggle tex-magic-space-mode)))
   (unless (assq 'tex-magic-space-mode minor-mode-alist)
     (setq minor-mode-alist
 	  (cons '(tex-magic-space-mode " ~")
+		;; (propertize " ~"
+		;;	       'local-map mode-line-minor-mode-keymap
+		;;	       'help-echo "mouse-3: minor mode menu")
 		minor-mode-alist)))
   (unless (assq 'tex-magic-space-mode-map minor-mode-map-alist)
     (setq minor-mode-map-alist
@@ -417,6 +461,21 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 ;; Przypisz globalnie `tex-magic-space-mode' do `C-c SPC'
 ;; `mode-specific-map' to (globalna) mapa klawiatury dla prefiksu C-c
 (define-key mode-specific-map " " 'tex-magic-space-mode)
+
+;; TO DO: przepisaæ to z powrotem na LaTeX-mode-hook, TeX-mode-hook,
+;; reftex-mode-hook i tym podobne.  `define-key' dla odpowiedniej mapy
+;; wystarczy zdefiniowaæ raz w chwili gdy mapa jest dostêpna (za pomoc±
+;; `eval-after-load') i domy¶lnie w danym trybie we wszystkich buforach
+;; `tex-magic-space' bêdzie w³±czone lub nie.  `tex-magic-space-mode' (lub
+;; ustawienie zmiennej) jest lokalne dla bufora (i takie powinno pozostaæ),
+;; wiêc nale¿y dodaæ je do odpowiednich haków za pomoc± `add-hook' (uwaga:
+;; jako argument pobiera on FUNCTION, a nie FORM!).
+
+;; HAKI: reftex-mode-hook, reftex-load-hook (RefTeX), TeX-mode-hook,
+;; LaTeX-mode-hook (AUCTeX, nieudokumentowane),
+;; TeX-auto-prepare-hook/TeX-auto-cleanup-hook (AUCTeX), bibtex-mode-hook
+;; (BibTeX), tex-mode-hook, plain-tex-mode-hook/latex-mode-hook (tex-mode);
+;; uruchamia siê tak¿e text-mode-hook (AUCTeX, tex-mode)
 
 ;; W³±cz TeX Magic Space mode dla znanych trybów (La)TeX-owych
 ;; For AUC TeX
