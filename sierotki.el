@@ -6,7 +6,7 @@
 ;;	Jakub Narebski <jnareb@fuw.edu.pl>
 ;;	Adam P. <adamp_at@at_ipipan.waw.pl>
 ;; Maintainer: Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 2.0
+;; Version: 2.1
 ;; Keywords: tex, wp
 ;; Created: 03-11-1999
 
@@ -50,10 +50,10 @@
 
 
 
-;;; Notes:
+;;; Notes[pl]:
 
-;;; Dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
-;;; `tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
+;;; 1. Dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
+;;; 2. `tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
 
 
 ;;; Code:
@@ -69,15 +69,20 @@
 ;; spacjê, po jednoliterowych [polskich] spójnikach w ca³ym buforze.
 ;; Poni¿sza zmienna definiuje wyra¿enie regularne u¿ywane w `tex-hard-spaces'
 (defvar tex-hard-spaces-regexp "\\<\\([aeiouwzAEIOUWZ]\\)\\s +"
+  ;; Pierwsza linia dokumentacji jest zbyt d³uga: 
+  ;; nie powinna przekraczaæ 67 znaków (jest 76 - 3 = 73)
   "*Regular expression which detects single [aeiouwz] for `tex-hard-spaces'.
 The part of regular expression which matches string to be saved 
 should be in parentheses, so the replace part \\\\1~ will work.
 
 Used as first argument to `query-replace-regexp'.")
 
-;; Zwyk³e `query-replace-regexp', czyli C-M-% dla odpowiednich wyra¿eñ regularnych
+;; Zwyk³e `query-replace-regexp', czyli C-M-% dla odpowiedniego
+;; wyra¿enia regularnego, zapisanego w `tex-hard-spaces-regexp'
 (defun tex-hard-spaces ()
-  "Replaces spaces after single-letter word with '~', the TeX non-breakable space.
+  ;; Pierwsza linia dokumentacji 
+  ;; nie powinna przekraczaæ 67 znaków (jest 68 - 3 = 65)
+  "Replaces whitespace characters after single-letter word with `~'.
 Replaces whitespace characters following single-letter conjunctions by `~',
 the TeX non-breakable space in whole buffer, interactively.
 Uses `tex-hard-spaces-regexp' for single-letter conjunctions detection.
@@ -103,9 +108,12 @@ It is implemented using `query-replace-regexp'."
 ;; UWAGA: [czasami] polskie literki s± traktowane jako koniec s³owa dla 8bit
 ;;        tzn. przy u¿yciu `standard-display-european' do ich wprowadzania.
 ;;        Bêdê próbowac znale¼æ dok³adne warunki wyst±pienia b³edu.
-;; TO DO: U¿yæ `defcustom'
+;; TO DO: U¿yæ `defcustom' 
+;; TO DO: Dodaæ tex-magic-space-regexp-len zamiast 2 (np. dowi±zywanie 'tys.')
 (defvar tex-magic-space-regexp "\\<[aeiouwzAEIOUWZ]\\'"
- "*Regular expression which detects single [aeiouwz] for `tex-magic-space'.
+  ;; Pierwsza linia dokumentacji jest zbyt d³uga: 
+  ;; nie powinna przekraczaæ 67 znaków (jest 76 - 3 = 73)
+  "*Regular expression which detects single [aeiouwz] for `tex-magic-space'.
 `tex-magic-space' inserts `~' if this expression matches two characters before point, 
 otherwise it inserts the key it is bound to (\\[tex-magic-space]), usually SPC.
 
@@ -117,6 +125,8 @@ ATTENTION: sometimes in unibyte mode the non US-ASCII letters are considered
 word boundary, even when they are word constituents.")
 
 (defun tex-magic-space (prefix) 
+  ;; Pierwsza linia dokumentacji jest zbyt d³uga: 
+  ;; nie powinna przekraczaæ 67 znaków (jest 72 - 3 = 69)
   "Magic-space - inserts non-breakable space after a single-letter word. 
 Uses `tex-magic-space-regexp' for single-letter words detection.
 
@@ -135,7 +145,7 @@ See also: `tex-hard-spaces'"
   (interactive "p")	                ; Prefix arg jako liczba.  Nie robi I/O.
   (when (string-match 
 	 tex-magic-space-regexp	        ; wyra¿enie rozpoznaj±ce samotne spójniki
-       (buffer-substring (max (point-min) (- (point) 2)) (point)))
+	 (buffer-substring (max (point-min) (- (point) 2)) (point)))
     (setq last-command-char ?~))	; wstawiamy `~' zamiast SPC
   (self-insert-command prefix))	        ; daje obs³ugê auto-fill, abbrev, blinkin-paren
 
@@ -146,6 +156,7 @@ See also: `tex-hard-spaces'"
 
 ;; Przypisuje/wy³±cza przypisanie tex-magic-space do spacji,
 ;; (przydatne przy pisaniu matematyki), [tylko dla trybów LaTeX-owych]
+;; TO DO: Zrobiæ z tego minor mode.
 (defun tex-toggle-magic-space (&optional arg)
   "Toggle whether SPC is bound to `tex-magic-space'.
 With prefix argument ARG, bind SPC to `tex-magic-space' if ARG is positive, 
@@ -161,11 +172,11 @@ use one common keymap)."
   (let 
     ((keymap				; mapa która bêdziemy modyfikowaæ
       (or (current-local-map) (current-global-map)))) 
-    (progn			        ; w¿ywane tylko by wypisaæ komunikat
+    (progn			        ; u¿ywane tylko by wypisaæ komunikat
       (cond
        ((null arg)			; Brak prefiksu
-	(if (equal 
-	     (lookup-key map " ") 	; sprawdzamy czy SPC jest przypisane ju¿
+	(if (equal			
+	     (lookup-key keymap " ")	; sprawdzamy czy SPC jest przypisane ju¿
 	     'tex-magic-space)		; do `tex-magic-space' w keymap
 ;;;     Wybierz jedn± z poni¿szych mo¿liwo¶ci
 ;;;	    (substitute-key-definition 'tex-magic-space 'self-insert-command keymap)
@@ -186,8 +197,8 @@ use one common keymap)."
       (describe-key-briefly " "))))
 
 
-;;; ---------------------------------------------------------------------
-;;; Inicjalizacja dla zapobiegania powstawaniu sierotek 'w locie'
+;;;; ---------------------------------------------------------------------
+;;;; Inicjalizacja dla zapobiegania powstawaniu sierotek 'w locie'
 
 ;;; Initialization, by Jakub Narêbski <jnareb@fuw.edu.pl> 
 ;;; and Adam P. <adamp_at@at_ipipan.waw.pl>
@@ -196,14 +207,14 @@ use one common keymap)."
 ;; `mode-specific-map' is keymap for characters following C-c
 ;; Sequences consisting of `C-c' followed by any punctuation character 
 ;; other than `{', `}', `<', `>', `:', `;' are allocated for minor modes.
-;; by Adam P. <adamp_at@at_ipipan.waw.pl>
-(define-key mode-specific-map " " 'tex-toggle-magic-space) ; C-c SPC
+(define-key  mode-specific-map " " 'tex-toggle-magic-space) ; C-c SPC
+
 
 ;;; Initialize SPC to `tex-magic-space' using eval-after-load
 ;; For AUC TeX
 (eval-after-load "tex"      '(define-key TeX-mode-map    " " 'tex-magic-space))
 (eval-after-load "latex"    '(define-key LaTeX-mode-map  " " 'tex-magic-space))
-;; For tex-mode as included in Emacs
+;; For tex-mode included in Emacs
 (eval-after-load "tex-mode" '(define-key tex-mode-map    " " 'tex-magic-space))
 ;; For RefTeX
 (eval-after-load "reftex"   '(define-key reftex-mode-map " " 'tex-magic-space))
