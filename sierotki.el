@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 1999-2003  Micha³ Jankowski, Jakub Narêbski
 
-;; Author: 	Ryszard Kubiak   <rysiek@ipipan.gda.pl>
+;; Authors: 	Ryszard Kubiak   <rysiek@ipipan.gda.pl>
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
@@ -17,6 +17,9 @@
 ;; Incompatibility:
 
 ;; $Id$
+
+;; This file is *NOT* part of GNU Emacs.
+;; This file is distributed under the same terms as GNU Emacs.
 
 ;;{{{ GPL
 
@@ -35,7 +38,11 @@
 ;; Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ;; MA 02111-1307 USA
 
+;; http://www.fsf.org/copyleft/gpl.html
+
 ;;}}}
+
+;;; Commentary:
 
 ;;; Installation:
 
@@ -43,15 +50,15 @@
 ;;
 ;;    (require 'sierotki)
 ;;
-;; If you do not want to load this package before it is necessary, you 
-;; can make use of the `autoload' feature, e.g. adding to your .emacs 
+;; If you do not want to load this package before it is necessary, you
+;; can make use of the `autoload' feature, e.g. adding to your .emacs
 ;; the following lines
 ;;
 ;;    (autoload 'tex-magic-space-mode "sierotki"
 ;;              "TeX Magic Space minor mode" t)
 ;;    (define-key mode-specific-map " " 'tex-magic-space-mode)
 ;;
-;; Then after turning on `tex-magic-space-mode' via `C-c SPC' 
+;; Then after turning on `tex-magic-space-mode' via `C-c SPC'
 ;; the whole package will be loaded.  Attention: using autoload means
 ;; that this mode _can't_ be turned on automatically in LaTeX modes.
 ;;
@@ -78,14 +85,14 @@
 ;; automatycznego ³adowania ten tryb _nie mo¿e_ byæ automatycznie w³±czany
 ;; w trybach LaTeX-owych.
 ;;
-;; Je¶li chcesz by TeX Magic Space mode by³ automatycznie w³±czany 
+;; Je¶li chcesz by TeX Magic Space mode by³ automatycznie w³±czany
 ;; w znanych trybach TeX-owych dodaj nastêpuj±c± linijkê do swojego pliku
 ;; .emacs po (require 'sierotki)
 ;;
 ;;    (turn-on-tex-magic-space-in-tex-modes)
 
 
-;;; Commentary:
+;;; Description:
 
 ;; The purpose of this package is to connect some defined words (by default
 ;; one letter Polish prepositions) with the following words by tilde, which
@@ -118,7 +125,7 @@
 
 ;; Documentation and comments: Jakub Narêbski.
 
-;;; Commentary[pl]:
+;;; Description[pl]:
 
 ;; Ten pakiet s³u¿y do dowi±zywania zdefiniowanych wyrazów (domy¶lnie
 ;; jednoliterowych spójników) do nastêpuj±cych po nich s³ów za pomoc± znaku
@@ -151,18 +158,6 @@
 
 
 ;;; Notes:
-
-;; Turning on and activation the `tex-magic-space-texmathp' advice or its
-;; equivalent (with the standard configuration for `texmathp') makes
-;; `tex-magic-space' around 10 times slower
-;; (measured using "elp" package).  [This info is out-of-date.]
-
-;;; Notes[pl]:
-
-;; W³±czanie i aktywacja porady `tex-magic-space-texmathp', lub jej
-;; odpowiednika (ze standardowymi warto¶ciami zmiennych dla `texmathp')
-;; powoduje oko³o 10-krotne zwolnienie dzia³ania `tex-magic-space'
-;; (zmierzono za pomoca pakietu "elp").  [Ta informacja jest nieaktualna].
 
 
 ;;; To do[pl]:
@@ -207,8 +202,10 @@
 ;; TO DO: Przetestowaæ testy, byæ mo¿e dodaæ sprawdzanie w jakim trybie jeste¶my!
 ;;
 ;; TO DO: w `tex-magic-space' zamiast sprawdzania czy element listy
-;; nadaje siê do `funcall' za pomoc± `fboundp' owin±c wszystko w
+;; nadaje siê do `funcall' za pomoc± `fboundp' owin±æ wszystko w
 ;; `condition-case' czy co¶ w tym stylu.
+;;
+;; TO DO: Poprawiæ pierwsz± linijkê dokumentacji do tex-magic-space.
 ;;
 ;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
 ;;
@@ -217,7 +214,7 @@
 
 ;;; History:
 
-;; There is no "History:" section in English because all references 
+;; There is no "History:" section in English because all references
 ;; are in Polish.
 
 ;;; History[pl]:
@@ -250,7 +247,7 @@
 ;;
 ;; W wyniku porównania z inn± implementacj± magicznej spacji (`spacja')
 ;; z artyku³u "GNU Emacs Lisp" rzyjontka na debian.otwarte.pl
-;; http://debian.otwarte.pl/article.php?aid=39 
+;; http://debian.otwarte.pl/article.php?aid=39
 ;; (obecnie http://www.debianusers.pl/article.php?aid=36)
 ;; (w szczególno¶ci innego jej zachowania) powsta³o pytanie o to, jakie
 ;; w³asno¶ci powinno mieæ `tex-magic-space'
@@ -265,24 +262,40 @@
 
 ;;; Change Log:
 
+;; Version 1.2 (RCS revision 1.2):
+;; * Added `tex-toggle-magic-space'.
+;; Version 1.3 (RCS revision 1.4):
+;; * Regexps in variables and not hardcoded.
+;; Version 2.0 (RCS revision 1.6):
+;; * New implementation of `tex-magic-space'.
 ;; Version 2.3 (RCS revision 1.12):
 ;; * TeX Magic Space minor mode (bound to `C-c SPC')
-;; Version 2.4 (RCS revision 1.22):
+;; Version 2.4 (RCS revision 1.17):
 ;; * Added checking if the `tex-magic-space' should be active or not
 ;;   (e.g. it should be inactive in math mode detected using `texmathp').
 ;;   It was implemented using advices.
+;; Version 2.5 (RCS revision 1.26):
+;; * Removed `tex-toggle-magic-space'; use `tex-magic-space-mode' instead.
 ;; Version 2.6 (RCS revision 1.31):
-;; * Checking if `tex-magic-space' should be active changed from 
+;; * Checking if `tex-magic-space' should be active was changed from
 ;;   the around advice(s) to the conditional in main function.
 
 ;;; Change Log[pl]:
 
+;; Wersja 1.2 (RCS revision 1.2):
+;; * Dodano `tex-toggle-magic-space'.
+;; Wersja 1.3 (RCS revision 1.4):
+;; * Wyra¿enia regularne w zmiennych, a nie zapisane wewn±trz funkcji.
+;; Wersja 2.0 (RCS revision 1.6):
+;; * Nowa implementacja `tex-magic-space'.
 ;; Wersja 2.3 (RCS revision 1.12):
 ;; * Pojawi³ siê TeX Magic Space minor mode (przypisany do `C-c SPC').
-;; Wersja 2.4 (RCS revision 1.22):
+;; Wersja 2.4 (RCS revision 1.17):
 ;; * Dodane porady i polecenie do ich w³±czana (przypisane do `C-c @'), aby
 ;;   `tex-magic-space' pozostawa³a nieaktywna tam gdzie nie trzeba (np.
 ;;   w trybie matematycznym wykrywanym za pomoc± `texmathp').
+;; Wersja 2.5 (RCS revision 1.26):
+;; * Usuniêcie `tex-toggle-magic-space'; u¿yj `tex-magic-space-mode'. 
 ;; Wersja 2.6 (RCS revision 1.31):
 ;; * Sprawdzania czy `tex-magic-space' powinno byæ nieaktywne zosta³o
 ;;   przepisane za pomoc± instrukcji warunkowej w g³ównej funkcji zamiast
@@ -379,18 +392,21 @@ line characters.  Does not work with nested \\verbs."
 ;;; Turning on tests for tex-magic-space
 ;;; Aktywacja sprawdzania/testów dla tex-magic-space i podobne
 (defvar tex-magic-space-do-checking nil
-  "Non-nil if `tex-magic-space' checks `tex-magic-space-tests'.
+  "*Non-nil if `tex-magic-space' checks `tex-magic-space-tests'.
 
 Set by `tex-magic-space-toggle-checking'")
 
-(defvar tex-magic-space-tests 
+(defvar tex-magic-space-tests
   (list
    (unless (and (boundp 'running-xemacs) running-xemacs) 'texinverbp)
    (if (or (featurep 'tex-site) (fboundp 'texmathp)) 'texmathp))
-  "List of functions which are invoked, in order, to determine whether
+  "List of test functions for `tex-magic-space'.
+
+List of functions which are invoked, in order, to determine whether
 `tex-magic-space' could insert a ~ (i.e., a tex non-breakable
 space).  The tilde can be inserted only when every function returns
-a nil value.")
+a nil value.  The tests are run only when `tex-magic-space-do-checking'
+has non-nil value")
 
 
 ;;; ----------------------------------------------------------------------
@@ -438,7 +454,7 @@ See also: `tex-hard-spaces'"
   (interactive "p")	               ; Prefix arg jako liczba.  Nie robi I/O.
   ;; Tests
   (unless (and tex-magic-space-do-checking
-	       (some (lambda (f) (and (fboundp f) (funcall f))) 
+	       (some (lambda (f) (and (fboundp f) (funcall f)))
 		     tex-magic-space-tests))
     ;; tests failed
     (when (string-match
