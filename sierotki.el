@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.6.0
+;; Version: 	2.6.1
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -238,15 +238,22 @@
 ;; * Added checking if the `tex-magic-space' should be active or not
 ;;   (e.g. it should be inactive in math mode detected using `texmathp').
 ;;   It was implemented using advices.
+;; Version 2.6 (RCS revision 1.31):
+;; * Checking if `tex-magic-space' should be active changed from 
+;;   the around advice(s) to the conditional in main function.
 
 ;;; Change Log[pl]:
 
-;; Version 2.3 (RCS revision 1.12):
+;; Wersja 2.3 (RCS revision 1.12):
 ;; * Pojawi³ siê TeX Magic Space minor mode (przypisany do `C-c SPC').
-;; Version 2.4 (RCS revision 1.22):
+;; Wersja 2.4 (RCS revision 1.22):
 ;; * Dodane porady i polecenie do ich w³±czana (przypisane do `C-c @'), aby
 ;;   `tex-magic-space' pozostawa³a nieaktywna tam gdzie nie trzeba (np.
 ;;   w trybie matematycznym wykrywanym za pomoc± `texmathp').
+;; Wersja 2.6 (RCS revision 1.31):
+;; * Sprawdzania czy `tex-magic-space' powinno byæ nieaktywne zosta³o
+;;   przepisane za pomoc± instrukcji warunkowej w g³ównej funkcji zamiast
+;;   u¿ywania do tego porad (advice).
 
 ;;; Code:
 
@@ -308,7 +315,7 @@ Returns nil or the pair (POINT-VERB-BEG . POINT-VERB-END) of positions where
 command argument begins if \\verb is unfinished (has no closing delimiter).
 
 This command uses the fact that the argument to \\verb cannot contain end of
-line characters.  Does not work with nested \\verbs."
+line characters.  Does not work with nested \\verb s."
   (interactive)
   (let ((point (point))
 	beg
@@ -334,9 +341,8 @@ line characters.  Does not work with nested \\verbs."
 ;;; ......................................................................
 ;;; Turning on tests for tex-magic-space
 ;;; Aktywacja sprawdzania/testów dla tex-magic-space i podobne
-(defvar tex-magic-space-checking-string ":Chk"
+(defvar tex-magic-space-do-checking nil
   "Non-nil if `tex-magic-space' checks `tex-magic-space-tests'.
-Its value is string describing that checking is active.
 
 Set by `tex-magic-space-toggle-checking'")
 
@@ -394,7 +400,7 @@ To use it turn on TeX Magic Space minor mode using command
 See also: `tex-hard-spaces'"
   (interactive "p")	               ; Prefix arg jako liczba.  Nie robi I/O.
   ;; Tests
-  (unless (and tex-magic-space-checking-string
+  (unless (and tex-magic-space-do-checking
 	       (some (lambda (f) (funcall f prefix)) tex-magic-space-tests))
     ;; tests failed
     (when (string-match
@@ -406,7 +412,7 @@ See also: `tex-hard-spaces'"
 (defun debug-tex-magic-space (&optional prefix)
   "Version of `tex-magic-space' which does'n do any testing."
   (interactive "p")
-  (let ((tex-magic-space-checking-string nil))
+  (let ((tex-magic-space-do-checking nil))
     (tex-magic-space prefix)))
 
 
@@ -457,16 +463,15 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 With prefix argument ARG, activate checking if ARG is positive,
 otherwise deactivate it.
 
-Sets `tex-magic-space-checking-string'."
+Sets `tex-magic-space-do-checking'."
   (interactive "P")
-  (setq tex-magic-space-checking-string
-	(cond ((null arg) (if (null tex-magic-space-checking-string)
-			      ":Chk"))
-	      ((> (prefix-numeric-value arg) 0) ":Chk")))
+  (setq tex-magic-space-do-checking
+	(if (null arg) (not tex-magic-space-checking-string)
+	  (> (prefix-numeric-value arg) 0)))
   (if tex-magic-space-mode
       (force-mode-line-update)
     (message "Checking tests for tex-magic-space %sctivated."
-	     (if tex-magic-space-checking-string "a" "dea"))))
+	     (if tex-magic-space-do-checking "a" "dea"))))
 
 
 ;;; NOTES:
@@ -515,8 +520,7 @@ Sets `tex-magic-space-checking-string'."
       ;; IDEA: tutaj mo¿na by dodaæ za pomoc± funkcji `propertize' dodatkowe
       ;; w³asno¶ci typu :help-echo, :local-map, :display czy :face
       (add-minor-mode 'tex-magic-space-mode
-		      (list " ~" '(tex-magic-space-checking-string
-				   tex-magic-space-checking-string))
+		      (list " ~" '(tex-magic-space-do-checking ":Chk"))
 		      tex-magic-space-mode-map))
   ;; Standardowy sposób dodania minor mode, za "Emacs Lisp Reference Manual"
 ;;;(define-key mode-line-mode-menu
