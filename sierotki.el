@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.6.4
+;; Version: 	2.6.5
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -108,11 +108,13 @@
 ;; and should be bound to SPC to work.  To activate this functionality
 ;; you have to turn on `tex-magic-space-mode'.  The minor mode TeX Magic
 ;; Space can be turned on from the modeline minor mode menu.  This mode
-;; is denoted by " ~" in the modeline.
+;; is denoted by " ~" in the modeline.  The ":Chk" after " ~" in the modeline
+;; shows that test are enabled.
 ;;
-;; The TeX Magic Space mode is automatically turned on in the TeX modes
+;; The TeX Magic Space mode can be automatically turned on in the TeX modes
 ;; by adding the equivalent of `turn-on-tex-magic-space-mode' to the
-;; hooks defined in the variable `tex-magic-space-mode-hooks-list'.
+;; hooks defined in the variable `tex-magic-space-mode-hooks-list' using
+;; the command `turn-on-tex-magic-space-in-tex-modes'.
 
 ;; Documentation and comments: Jakub Narêbski.
 
@@ -135,15 +137,15 @@
 ;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest ona
 ;; implementowana przez komendê `tex-magic-space', któr± nale¿y podpi±æ do
 ;; spacji.  Do aktywowania tej funkcjonalno¶ci nale¿y w³±czyæ
-;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na
-;; aktualnie w³±czyæ tak¿e z modeline minor mode menu; jest on oznaczany za
-;; pomoc± " ~".  Ewentualne dodatkowe oznaczenia po " ~" informuj±, ze
-;; porady s± aktywne i pokazuj± które porady s± w³±czone.
+;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na aktualnie
+;; w³±czyæ tak¿e z modeline minor mode menu; jest on oznaczany za pomoc± " ~".
+;; Ewentualne dodatkowe oznaczenia po " ~" informuj±, ¿e porady/testy s±
+;; aktywne.
 ;;
-;; Funkcjonalno¶æ ta jest automatycznie w³±czana w trybach TeX-owych
-;; za pomoc± dodania odpowiednika `turn-on-tex-magic-space-mode' do
-;; odpowiednich haczyków (zdefiniowanych w zmiennej
-;; `tex-magic-space-mode-hooks-list') za pomoc± `add-hook'.
+;; Funkcjonalno¶æ ta mo¿e byæ automatycznie w³±czana w trybach TeX-owych za
+;; pomoc± dodania odpowiednika `turn-on-tex-magic-space-mode' do odpowiednich
+;; haczyków (zdefiniowanych w zmiennej `tex-magic-space-mode-hooks-list') za
+;; pomoc± polecenia (funkcji) `turn-on-tex-magic-space-in-tex-modes'.
 
 ;; Dokumentacja i komentarze: Jakub Narêbski.
 
@@ -339,6 +341,10 @@ It is implemented using `query-replace-regexp'."
 ;;; Tests for `tex-magic-space'
 ;;; Testy dla `tex-magic-space'
 
+;; Workaround for XEmacs (not needed anymore?)
+;(unless (fboundp 'match-string-no-properties)
+;  (defalias 'match-string-no-properties 'match-string))
+
 (defun texinverbp ()
   "Determine if point is inside LaTeX \\verb command.
 Returns nil or the pair (POINT-VERB-BEG . POINT-VERB-END) of positions where
@@ -346,9 +352,7 @@ Returns nil or the pair (POINT-VERB-BEG . POINT-VERB-END) of positions where
 command argument begins if \\verb is unfinished (has no closing delimiter).
 
 This command uses the fact that the argument to \\verb cannot contain end of
-line characters.  Does not work with nested \\verb s.
-
-May not work in XEmacs."
+line characters.  Does not work with nested \\verbs."
   (interactive)
   (let ((point (point))
 	beg
@@ -356,13 +360,13 @@ May not work in XEmacs."
 	delim)
   (save-excursion
     (and (setq beg (and (re-search-backward "\\\\verb\\*?\\([^a-zA-Z*\\n]\\)"
-					   (line-beginning-position) t)
+					   (point-at-bol) t)
 		       (match-end 0)))
-	 (setq delim (regexp-quote (match-string-no-properties 1)))
+	 (setq delim (regexp-quote (match-string 1)))
 	 (goto-char beg)
 	 ;;(or (insert "!") t)
 	 (setq end (and (skip-chars-forward (concat "^" delim)
-					    (line-end-position))
+					    (point-at-eol))
 			(point)))
 	 (or (eolp)
 	     (looking-at (concat "[" delim "]")))
@@ -478,10 +482,14 @@ Does not force the modeline update."
 ;;;###autoload
 (defun tex-magic-space-mode (&optional arg)
   "Toggle TeX Magic Space mode.
-With prefix argument ARG, turn on if positive, otherwise off.
-Returns non-nil if the new state is enabled.
-\\<tex-magic-space-mode-map>
-In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
+With ARG, turn TeX Magic Space mode on if and only if ARG is positive.
+In TeX Magic Space mode typing a space inserts tilde, the TeX non-breakable
+space, after single-letter prepositions described by `tex-magic-space-regexp'
+if we are not in one of situations described by `tex-magic-space-tests'.
+The testing can be toggled using `\\[tex-magic-space-toggle-checking]' which
+runs `tex-magic-space-toggle-checking'.
+ 
+\\<tex-magic-space-mode-map>"
   (interactive "P")
   (setq tex-magic-space-mode
 	(if (null arg) (not tex-magic-space-mode)
@@ -592,7 +600,7 @@ Sets `tex-magic-space-do-checking'."
 ;; Space mode, tzn. w `tex-magic-space-mode-map'; jako prefiksu mo¿na by
 ;; u¿yæ `C-c C-SPC', a jako klawiszy " ", "m", "f", "u".
 (define-key mode-specific-map " " 'tex-magic-space-mode)
-(define-key mode-specific-map "@" 'tex-magic-space-toggle-checking)
+;(define-key mode-specific-map "@" 'tex-magic-space-toggle-checking)
 ;; aby wpisaæ 'C-SPC' trzeba u¿yæ wektora zamiast ³añcucha, t.j. [?\C- ]
 
 ;; TO DO: przepisaæ to z powrotem na LaTeX-mode-hook, TeX-mode-hook,
