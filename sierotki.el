@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.6.1
+;; Version: 	2.6.2
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -435,8 +435,9 @@ You can set it directly or use the command `tex-magic-space-mode'.")
 
 ;;;###autoload
 (defun turn-on-tex-magic-space-mode ()
-  "Turn on TeX Magic Space mode."
-  (tex-magic-space-mode t))
+  "Turn on TeX Magic Space mode.
+Does not force the modeline update."
+  (setq tex-magic-space-mode t))
 
 ;;;###autoload
 (defun tex-magic-space-mode (&optional arg)
@@ -576,8 +577,8 @@ Sets `tex-magic-space-do-checking'."
 
 ;; W³±cz TeX Magic Space mode dla znanych trybów (La)TeX-owych
 (defmacro tex-magic-space-mode-add-to-hook (hook)
-  "Add `(setq 'tex-magic-space-mode t)' to HOOK."
-  `(add-hook ,hook (function (lambda () (setq tex-magic-space-mode t)))))
+  "Add `turn-on-tex-magic-space-mode' to HOOK."
+  `(add-hook ,hook 'turn-on-tex-magic-space-mode))
 
 (defmacro tex-magic-space-mode-initialize (hooks)
   "Add `(setq 'tex-magic-space-mode t)' to each of HOOKS."
@@ -590,7 +591,7 @@ Sets `tex-magic-space-do-checking'."
     reftex-mode-hook			; for RefTeX minor mode
     bibtex-mode-hook)			; for BibTeX
   "List of hooks to which add turning on TeX Magic Space minor mode.
-You must set this using (setq tex-magic-space-mode-hooks-list VALUE) before
+You must set this using (setq tex-magic-space-mode-hooks-list LIST) before
 loading this file i.e. before (require 'sierotki).")
 
 (tex-magic-space-mode-initialize tex-magic-space-mode-hooks-list)
