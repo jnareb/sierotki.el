@@ -6,7 +6,7 @@
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.4.3
+;; Version: 	2.5.0
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	TeX, wp, convenience
@@ -75,8 +75,7 @@
 ;; Drug± z funkcjonalno¶ci jest automatyczne wpisywanie tyld po
 ;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest
 ;; ona implementowana przez komendê `tex-magic-space', któr± nale¿y
-;; podpi±æ do spacji.  Do aktywowania tej funkcjonalno¶ci mo¿na u¿yæ
-;; `tex-toggle-magic-space', albo (co jest bezpieczniejsze)
+;; podpi±æ do spacji.  Do aktywowania tej funkcjonalno¶ci nale¿y u¿yæ
 ;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na
 ;; aktualnie w³±czyæ z modeline dla trybów g³ównych (major mode)
 ;; `latex-mode' lub `tex-mode'; jest on oznaczany za pomoc± " ~".
@@ -118,7 +117,6 @@
 ;;
 ;;
 ;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
-;; `tex-toggle-magic-space' dzia³a w dowolnym trybie (patrz komentarz).
 ;;
 ;; Zawarto¶æ "History:" nie jest kompletna.
 
@@ -208,8 +206,7 @@ It can be used to bind single-letter conjunction to the word following it in
 the existing text, using `~' (the TeX non-breakable space), so there are no
 single-letter conjunctions at the end of the line (known as 'orphans').
 
-For on-the-fly 'tildification' bind SPC to `tex-magic-space' using
-\\[tex-toggle-magic-space], or turn on TeX Magic Space minor mode using
+For on-the-fly 'tildification' turn on TeX Magic Space minor mode using
 command \\[tex-magic-space-mode].
 
 It is implemented using `query-replace-regexp'."
@@ -263,9 +260,8 @@ Works with abbrev expansion with the following exceptions:
 
 Should not be used directly.
 
-Bind it to space using `tex-toggle-magic-space' (\\[tex-toggle-magic-space])
-or turn on TeX Magic Space minor mode using command `tex-magic-space-mode'
-\(\\[tex-magic-space-mode]).
+To use it turn on TeX Magic Space minor mode using command 
+`tex-magic-space-mode' (\\[tex-magic-space-mode]).
 
 See also: `tex-hard-spaces'"
   (interactive "p")	               ; Prefix arg jako liczba.  Nie robi I/O.
@@ -300,6 +296,29 @@ See also: `tex-hard-spaces'"
 ;; `intersection' z pakietu CL (Common Lisp).  Na razie jest to zrobione
 ;; tak, aby dzia³a³o.
 
+(defun texinverbp ()
+  "Determine if point is inside LaTeX \\verb command.
+Returns nil or pair (POINT-VERB-BEG . POINT-VERB-END)."
+  (interactive)
+  (let ((point (point))
+	beg
+	end
+	delim)
+  (save-excursion
+    (and (setq beg (and (re-search-backward "\\\\verb\\([^a-zA-Z*\\s-]\\)"
+					   (line-beginning-position) t)
+		       (match-end 0)))
+	 ;; jest k³opot z ogranicznikiem '\', który jest wpisywany jako '\\'
+	 (setq delim (match-string-no-properties 1))
+	 (goto-char beg)
+	 ;;(or (insert "!") t)
+	 (setq end (and (skip-chars-forward (concat "^" delim)
+					    (line-end-position))
+			(point)))
+	 (looking-at (concat "[" delim "]"))
+	 ;;(or (insert "!") t)
+	 (and (< point end) 
+	      (cons beg end))))))
 
 ;; IDEE: `tex-magic-space-texmathp'
 ;; * mo¿liwo¶ci sprawdzania, czy `texmathp' jest dostêpne:
@@ -346,29 +365,6 @@ See also: `tex-hard-spaces'"
 ;;     pomoc± (featurep 'texmathp))
 (eval-when-compile (require 'texmathp))
 
-(defadvice tex-magic-space
-  (around tex-magic-space-texmathp (&optional prefix) preactivate)
-  "Inactive in math mode as defined by `texmathp'.
-See the variable `texmathp-tex-commands' about which commands are checked.
-See the variable `texmathp-search-n-paragraphs' for limiting the search
-\(there is no limit on the empty line (paragraph) search)."
-  (interactive "p")
-  (if (and (fboundp 'texmathp) (not (texmathp)))
-      ;; jeste¶my poza trybem matematycznym albo `texmathp' nie istnieje
-      ad-do-it
-    ;; IDEA: mo¿na u¿yæ `insert' aby deaktywowaæ `auto-fill-mode' itp.
-    ;; w trybie matematycznym.
-    (self-insert-command (or prefix 1))))
-
-;; je¶li `texmathp' jest ju¿ za³adowane, mo¿emy go u¿ywaæ, w przeciwnym
-;; wypadku wy³±czamy (disable) poradê `tex-magic-space-texmathp' i dodajemy
-;; jej automatyczne w³±czanie po za³adowaniu pliku `texmathp'
-(unless (or (featurep 'sierotki) 	; file was loaded already
-	    (fboundp 'texmathp) (featurep 'texmathp))
-  (ad-disable-advice 'tex-magic-space 'around 'tex-magic-space-texmathp)
-  (eval-after-load "texmathp"
-    '(ad-enable-advice 'tex-magic-space 'around 'tex-magic-space-texmathp)))
-
 
 ;; UWAGA: Ró¿ne pliki ró¿nie definiuj± font (face) dla trybu matematycznego:
 ;; * AUCTeX: font-latex.el:  font-latex-math-face (LaTeX math expressions)
@@ -390,9 +386,8 @@ Defined in `tex-font' from AUCTeX and `tex-mode' from Emacs
 * tex-math-face:          Face used to highlight TeX math expressions.
 Defined in `font-latex' from AUCTeX:
 * font-latex-math-face:   Face to use for LaTeX math environments.
-* font-latex-sedate-face: Face to use for LaTeX minor keywords.
+* font-latex-sedate-face: Face to use for LaTeX minor keywords.")
 
-Used in advice `tex-magic-space-face'")
 
 (defun nonempty-intersection (list-or-atom list)
   "Return non-nil if any element of LIST-OR-ATOM is element of LIST.
@@ -407,33 +402,32 @@ iterate over elements of LIST-OR-ATOM."
 	(setq found (memq (car elems) list)))
       found)))
   
-(defadvice tex-magic-space
-  (around tex-magic-space-face (&optional prefix) preactivate)
-  "Inactive when face belongs to `tex-magic-space-face-list'."
-  (interactive "P")
-  (if (not (nonempty-intersection (get-text-property (point) 'face)
-				  tex-magic-space-face-list))
-      ad-do-it
-    (self-insert-command (or prefix 1))))
 
-;; je¶li u¿ywamy kolorowania skladni (font lock) to mo¿emy u¿ywaæ tej
-;; porady, w przeciwnym wypadku wy³±czamy (disable) poradê
-;; `tex-magic-space-face' i dodajemy jej automatyczne w³±czanie do haków
-;; font-lock
-(unless (or (featurep 'sierotki) 	; file was loaded already
-	    (and (boundp 'global-font-lock-mode) global-font-lock-mode)
-	    (and (boundp 'font-lock-mode) font-lock-mode))
-  (ad-disable-advice 'tex-magic-space 'around 'tex-magic-space-face)
-  (add-hook 'font-lock-mode-hook
-	    #'(lambda () (ad-enable-advice 'tex-magic-space 'around
-					   'tex-magic-space-face)))
-  (add-hook 'global-font-lock-mode-hook
-	    #'(lambda () (ad-enable-advice 'tex-magic-space 'around
-					   'tex-magic-space-face))))
+;; Nie wiem jak bêdzie z kompilowaniem porad u¿ywaj±cych "user form",
+;; tzn. czy zawarto¶æ "user form" jest kompilowana.
+
+(defconst tex-magic-space-auctex-form	; lub tex-magic-space-texmathp-form
+  '(and (fboundp 'texmathp) (texmathp))
+  "Inactive in math mode as defined by `texmathp'.
+See the variable `texmathp-tex-commands' about which commands are checked.
+See the variable `texmathp-search-n-paragraphs' for limiting the search
+\(there is no limit on the empty line (paragraph) search).
+
+TO DO: this is the form which can be used only when AUCTeX is used.")
+
+(defconst tex-magic-space-font-lock-form
+  '(nonempty-intersection (get-text-property (point) 'face)
+			  tex-magic-space-face-list)
+  "Inactive when face belongs to `tex-magic-space-face-list'.
+
+TO DO: this is the form which can be used only when Font Lock is active.")
 
 (defvar tex-magic-space-user-form
-  'nil
-  "*User defined form when `tex-magic-space' should be inactive.
+  'tex-magic-space-auctex-form
+  "*User defined form defining when `tex-magic-space' should be inactive.
+It should eval to non-nil when POINT is in some part of document where one
+don't want `tex-magic-space' to be active (i.e. to insert tildes).
+
 You must set it before loading sierotki.el or [re]activate advices for
 `tex-magic-space' after changing this variable using command
 `tex-magic-space-toggle-checking' (`C-u \\[tex-magic-space-toggle-checking]').
@@ -457,19 +451,8 @@ Used in advice `tex-magic-space-user-form'")
 ;;; ......................................................................
 ;;; Aktywacja porad i podobne
 (defvar tex-magic-space-checking-string
-  (when (ad-is-active 'tex-magic-space)
-    (concat
-     ":"
-     (when (ad-advice-enabled
-	    (ad-find-advice 'tex-magic-space 'around 'tex-magic-space-texmathp))
-       "m")
-     (when (ad-advice-enabled
-	    (ad-find-advice 'tex-magic-space 'around 'tex-magic-space-face))
-       "f")
-     (when (ad-advice-enabled
-	    (ad-find-advice 'tex-magic-space 'around 'tex-magic-space-user-form))
-       "u")
-     ))
+  (and (ad-is-active 'tex-magic-space)
+       ":Adv")
   "Non-nil if advices for `tex-magic-space' are active.
 Its value is string describing which advices are enabled.
 
@@ -502,21 +485,12 @@ See also: `tex-magic-space-texmathp', `tex-magic-space-face',
   ;; ustawiamy zmienn± `tex-magic-space-checking', która opisuje które
   ;; porady s± w³±czone; je¶li porady s± niektywne jest równa nil.
   (setq tex-magic-space-checking-string
-	(when (ad-is-active 'tex-magic-space)
-	  (concat
-	   ":"
-	   (when (ad-advice-enabled
-		(ad-find-advice 'tex-magic-space 'around 'tex-magic-space-texmathp))
-	     "m")
-	   (when (ad-advice-enabled
-		(ad-find-advice 'tex-magic-space 'around 'tex-magic-space-face))
-	     "f")
-	   (when (ad-advice-enabled
-		(ad-find-advice 'tex-magic-space 'around 'tex-magic-space-user-form))
-	     "u")
-	   )))
+	(and (ad-is-active 'tex-magic-space)
+	     ":Adv"))
   (if tex-magic-space-mode
       (force-mode-line-update)
+    ;; poinformuj o w³±czeniu porad je¶li nie widaæ tego po modeline
+    ;; bo `tex-magic-space-mode' jest nieaktywne
     (message "Advices for tex-magic-space %sctivated."
 	     (if (ad-is-active 'tex-magic-space) "a" "dea"))))
 	   
@@ -542,56 +516,6 @@ See also: `tex-magic-space-texmathp', `tex-magic-space-face',
 ;; w³±czona za pomoc± `ad-advice-enabled'.
 
 
-
-;;; ----------------------------------------------------------------------
-;;; Toggle magic space by Jakub Narêbski <jnareb@fuw.edu.pl>,
-;;; modifications based on code by Adam P. <adamp_at@at_ipipan.waw.pl>
-
-;; Przypisuje/wy³±cza przypisanie tex-magic-space do spacji,
-;; (przydatne przy pisaniu matematyki)
-;;;###autoload
-(defun tex-toggle-magic-space (&optional arg)
-  "Toggle whether SPC is bound to `tex-magic-space'.
-With prefix argument ARG, bind SPC to `tex-magic-space' if ARG is positive,
-otherwise bind SPC to `self-insert-command'.
-
-It can be used to toggle temporarily `tex-magic-space' off when writing
-equations (with e.g. `i' as index), then turn it on in main text.
-
-Uses local keymap i.e. major mode keymap, so it currently works with
-any mode, not only with LaTeX modes (there are several of them and
-they do not use one common keymap).
-
-See also command `tex-magic-space-mode' for an alternative way to use
-`tex-magic-space'."
-  (interactive "P")	                ; Prefix arg w postaci surowej.  Nie robi I/O.
-  (let (space-binding
-	local-space-binding)
-    (cond
-     ((null arg)			; brak prefiksu
-      (if (local-key-binding " " 'tex-magic-space)
-	  (local-unset-key " ")
-	(local-set-key " " 'tex-magic-space)))
-     ((> (prefix-numeric-value arg) 0) ; dodatni prefiks
-      (local-set-key " " 'tex-magic-space))
-     (t					; wpp (niedodatni prefiks)
-      (local-unset-key " ")))
-    ;; koniec cond; opisanie wyniku
-    (setq space-binding       (key-binding " "))
-    (setq local-space-binding (local-key-binding " "))
-    (message "%s runs the command %s%s"
-	     (key-description " ")
-	     space-binding
-	     ;; obs³uga przypadku gdy ta funkcja "nie dzia³a"
-	     (if (or (and (null local-space-binding)
-			  (eq space-binding 'self-insert-command))
-		     (eq (key-binding " ") (local-key-binding " ")))
-		 ""
-	       (format "; locally bound to %s" (local-key-binding " ")))
-	     ;; IDEA: mo¿na u¿yæ minor-mode-key-binding do sprawdzenia
-	     ;; w jakim trybie zosta³a zdefiniowana spacja.
-	     )))
-
 
 ;;;; ======================================================================
 ;;;; `tex-magic-space-mode', mapa klawiatury, zarejestrowanie minor mode
@@ -600,10 +524,11 @@ See also command `tex-magic-space-mode' for an alternative way to use
 You can set it directly or use the command `tex-magic-space-mode'.")
 (make-variable-buffer-local 'tex-magic-space-mode)
 
-(defvar tex-magic-space-mode-map (make-sparse-keymap)
+(defvar tex-magic-space-mode-map 
+  (let ((map (make-sparse-keymap)))
+    (define-key tex-magic-space-mode-map " " 'tex-magic-space)
+    map)
   "Keymap for TeX Magic Space mode, containing only entry for SPC.")
-
-(define-key tex-magic-space-mode-map " " 'tex-magic-space)
 
 ;;;###autoload
 (defun turn-on-tex-magic-space-mode ()
