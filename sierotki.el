@@ -1,6 +1,6 @@
 ;;; sierotki.el --- Introduce tildes after single-letter words
 
-;; Copyright (C) 1999-2003  Micha³ Jankowski, Jakub Narêbski
+;; Copyright (C) 1999-2005  Micha³ Jankowski, Jakub Narêbski
 
 ;; Authors: 	Ryszard Kubiak   <rysiek@ipipan.gda.pl>
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
