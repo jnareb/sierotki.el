@@ -1,27 +1,33 @@
 ;;; sierotki.el --- Introduce tildes after single-letter words
-
-;; Copyright (C) 1999-2005  Micha³ Jankowski, Jakub Narêbski
-
-;; Authors: 	Ryszard Kubiak   <rysiek@ipipan.gda.pl>
-;;		Micha³ Jankowski <michalj@fuw.edu.pl>
-;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
-;; Maintainer: 	Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Version: 	2.6.5
-;; RCS version:	$Revision$
-;; Date: 	$Date$
-;; Keywords: 	TeX, wp, convenience
-;; Created: 	03-11-1999
-;; URL: 	http://www.fuw.edu.pl/~jnareb/sierotki.el
 ;;
-;; Compatibility:   Emacs21, XEmacs21
+;; Copyright (C) 1999-2005  Micha³ Jankowski, Jakub Narêbski
+;; 
+;; Authors: Ryszard Kubiak <rysiek@ipipan.gda.pl>
+;;	Micha³ Jankowski <michalj@fuw.edu.pl>
+;;	Jakub Narêbski <jnareb@fuw.edu.pl>
+;; Maintainer: Jakub Narêbski <jnareb@fuw.edu.pl>
+;; Created: 3 Nov 1999
+;;
+;; Last-Updated: Tue Nov 29 00:31:08 2005 (3600 CET)
+;;           By: Jakub Narebski
+;;     Update #: 11
+;;
+;; Version: 2.6.7
+;; RCS Id: $Id$
+;; RCS Version:	$Revision$
+;; RCS Date: $Date$
+;; Keywords: TeX, wp, convenience
+;; URL: http://www.fuw.edu.pl/~jnareb/sierotki.el
+;;      http://www.emacswiki.org/emacs/sierotki.el
+;; EmacsWiki: NonbreakableSpace
+;;
+;; Compatibility: Emacs21, XEmacs21
 ;; Incompatibility:
 
 ;; $Id$
 
 ;; This file is *NOT* part of GNU Emacs.
 ;; This file is distributed under the same terms as GNU Emacs.
-
-;;{{{ GPL
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -40,8 +46,8 @@
 
 ;; http://www.fsf.org/copyleft/gpl.html
 
-;;}}}
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
 ;;; Commentary:
 
 ;;; Installation:
@@ -156,111 +162,12 @@
 
 ;; Dokumentacja i komentarze: Jakub Narêbski.
 
-
-;;; Notes:
-
-
-;;; To do[pl]:
-
-;; TO DO: Ulepszyæ wyra¿enie regularne b±d¼ daæ do wyboru wersjê prost±
-;; (i szybk±) lub skomplikowan± (i mog±c± wiêcej).  Byæ mo¿e wyra¿enie
-;; regularne powinno byæ "sk³adane" z kilku: definiuj±cego granicê s³owa z
-;; lewej strony, definiuj±cego jednoliterowe spójniki, definiuj±cego inne
-;; wyrazy po których stawiamy nie³amliw± spacjê, definiuj±cego dowi±zanie z
-;; prawej strony t.j. co¶ jak "\\'", definiuj±cego jakie znaki zamieniamy na
-;; pojedyncz± nie³amliw± spacjê (granicê s³owa z prawej).
-;;
-;; TO DO: Osobna porada (domy¶lnie wy³±czona) sprawdzaj±ca czy jeste¶my w
-;; komentarzu u¿ywaj±c kodu jak w `comment-beginning', t.j. sprawdzaj±c czy
-;; u¿ywamy `font-lock-comment-face' i ewentualnie szukaj±c znaku komentarza
-;; `%' w bie¿±cej linii na lewo od bie¿±cej pozycji (`point').
-;;
-;; TO DO: Zgadywanie, czy nale¿y w³±czyæ TeX Magic Space mode (czy w inny
-;; sposób uaktywniæ magiczn± spacjê) na podstawie nag³ówka pliku TeX-owego.
-;; Lub napisanie odpowiednich plików dla AUCTeX-a: pakiety polski i babel.
-;;
-;; TO DO: U¿yæ `defcustom' do zdefiniowania zmiennych (via `customize').
-;;
-;; TO DO: Dodaæ tex-magic-space-regexp-len zamiast 2 (np. dowi±zywanie 'tys.')
-;;        do `tex-magic-space'.
-;;
-;; TO DO: Dodaæ `tex-magic-space-checking-why' (a la `texmathp-why'), które
-;;        bêdzie podawa³o dlaczego magiczna spacja jest nieaktywna.
-;;
-;; TO DO: Przywróciæ tym razem jako osobn± funkcjê sprawdzanie jak pokolorowany
-;; (za pomoc± `font-lock') jest bie¿±cy obszar, i odpowiednio nieaktywowanie
-;; g³ównej czê¶ci `tex-magic-space'.
-;;
-;; TO DO: Napisaæ post-poradê (after advice) do rozwijania skrótów w
-;; `abbrev-mode', tak by w przypadku rozwiniêæ koñcz±cych siê na jednoliterowe
-;; spójniki dodawana by³a tylda zamiast spacji która wyzwoli³a rozwiniêcie.
-;;
-;; TO DO: Opis TeX Magic Space mode brany jest z docstring
-;; `tex-magic-space-mode'.  Je¶li da siê go wpisaæ gdzie¶ indziej zrobiæ to.
-;; Je¶li nie, to rozszerzyæ opis w docstringu `tex-magic-space-mode'.
-;;
-;; TO DO: Przetestowaæ testy, byæ mo¿e dodaæ sprawdzanie w jakim trybie jeste¶my!
-;;
-;; TO DO: w `tex-magic-space' zamiast sprawdzania czy element listy
-;; nadaje siê do `funcall' za pomoc± `fboundp' owin±æ wszystko w
-;; `condition-case' czy co¶ w tym stylu.
-;;
-;; TO DO: Poprawiæ pierwsz± linijkê dokumentacji do tex-magic-space.
-;;
-;; Ponadto dokumentacja po angielsku (zw³aszcza docstrings) wymaga poprawienia.
-;;
-;; Zawarto¶æ "History:" nie jest kompletna.
-
-
-;;; History:
-
-;; There is no "History:" section in English because all references
-;; are in Polish.
-
-;;; History[pl]:
-
-;; Kod `tex-hard-spaces' pojawi³ siê po raz pierwszy w:
-;;
-;; From: rysiek@IPIPAN.GDA.PL (Ryszard Kubiak)
-;; Newsgroups: pl.comp.dtp.tex.gust
-;; Subject: Re: tylda do samotnych
-;; Date: 25 Oct 1999 21:12:54 GMT
-;;
-;; Wpisywanie tyld "w locie", tzn `tex-magic-space' pojawi³o siê w:
-;;
-;; From: Michal Jankowski <michalj@fuw.edu.pl>
-;; Newsgroups: pl.comp.dtp.tex
-;; Subject: Dowiazywanie samotnich literek do nastepnego slowa.
-;; Date: 03 Nov 1999 12:45:22 +0100
-;;
-;; Nastêpnie wyra¿enia regularne w obu funkcjach by³y sukcesywnie
-;; poprawiane.  W wyniku do¶wiadczeñ z u¿ywania `tex-magic-space' przy
-;; pisaniu tekstów z du¿± ilo¶ci± matematyki zosta³o napisane
-;; `tex-toggle-magic-space'.  Nastêpnie zosta³ zg³oszony b³±d w wyra¿eniu
-;; regularnym w `tex-magic-space', a w wyniku dyskusji powsta³a obecna
-;; wersja `tex-magic-space', u¿ywaj±ca zmiennej `last-command-char'
-;; i funkcji `self-insert-command'
-;;
-;; From: Michal Jankowski <Michal.Jankowski@fuw.edu.pl>
-;; Subject: Re: Test sierotek
-;; Date: 30 Oct 2001 13:02:16 +0100
-;;
-;; W wyniku porównania z inn± implementacj± magicznej spacji (`spacja')
-;; z artyku³u "GNU Emacs Lisp" rzyjontka na debian.otwarte.pl
-;; http://debian.otwarte.pl/article.php?aid=39
-;; (obecnie http://www.debianusers.pl/article.php?aid=36)
-;; (w szczególno¶ci innego jej zachowania) powsta³o pytanie o to, jakie
-;; w³asno¶ci powinno mieæ `tex-magic-space'
-;;
-;; From: "Jakub Narêbski" <jnareb@fuw.edu.pl>
-;; Subject: RFC: sierotki.el
-;; Newsgroups: pl.comp.dtp.tex
-;; Date: 14 Nov 2002 14:13:26 GMT
-;;
-;; Dyskusja trwa...
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
 ;;; Change Log:
+;; 4-Nov-2005    Jakub Narebski  
+;;    Last-Updated: Thu Nov  3 23:47:10 2005 #6 (Jakub Narebski)
+;;    
 
 ;; Version 1.2 (RCS revision 1.2):
 ;; * Added `tex-toggle-magic-space'.
@@ -301,6 +208,9 @@
 ;;   przepisane za pomoc± instrukcji warunkowej w g³ównej funkcji zamiast
 ;;   u¿ywania do tego porad (advice).
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
 ;;; Code:
 
 
@@ -658,7 +568,6 @@ variable `tex-magic-space-mode-hooks-list'."
   (tex-magic-space-mode-initialize tex-magic-space-mode-hooks-list))
 
 
-
 ;;;; ======================================================================
 ;;;; Announce
 ;;;; Zakoñczenie
@@ -669,4 +578,5 @@ variable `tex-magic-space-mode-hooks-list'."
 ;; coding: iso-latin-2
 ;; End:
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; sierotki.el ends here
