@@ -2,27 +2,26 @@
 ;;
 ;; Copyright (C) 1999-2005  Micha³ Jankowski, Jakub Narêbski
 ;; 
-;; Authors: Ryszard Kubiak <rysiek@ipipan.gda.pl>
-;;	Micha³ Jankowski <michalj@fuw.edu.pl>
-;;	Jakub Narêbski <jnareb@fuw.edu.pl>
+;; Authors:    Ryszard Kubiak <rysiek@ipipan.gda.pl>
+;;             Micha³ Jankowski <michalj@fuw.edu.pl>
+;;             Jakub Narêbski <jnareb@fuw.edu.pl>
 ;; Maintainer: Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Created: 3 Nov 1999
+;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Tue Nov 29 00:31:08 2005 (3600 CET)
+;; Last-Updated: Sat Jan 21 12:49:02 2006 (3600 CET)
 ;;           By: Jakub Narebski
-;;     Update #: 11
+;;     Update #: 78
 ;;
-;; Version: 2.6.7
-;; RCS Id: $Id$
+;; Version:     2.7.1
 ;; RCS Version:	$Revision$
-;; RCS Date: $Date$
-;; Keywords: TeX, wp, convenience
+;; RCS Date:    $Date$
+;; Keywords:    TeX, wp, convenience
 ;; URL: http://www.fuw.edu.pl/~jnareb/sierotki.el
 ;;      http://www.emacswiki.org/emacs/sierotki.el
 ;; EmacsWiki: NonbreakableSpace
 ;;
 ;; Compatibility: Emacs21, XEmacs21
-;; Incompatibility:
+
 
 ;; $Id$
 
@@ -165,9 +164,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
 ;;; Change Log:
-;; 4-Nov-2005    Jakub Narebski  
-;;    Last-Updated: Thu Nov  3 23:47:10 2005 #6 (Jakub Narebski)
-;;    
 
 ;; Version 1.2 (RCS revision 1.2):
 ;; * Added `tex-toggle-magic-space'.
@@ -186,6 +182,10 @@
 ;; Version 2.6 (RCS revision 1.31):
 ;; * Checking if `tex-magic-space' should be active was changed from
 ;;   the around advice(s) to the conditional in main function.
+;; Version 2.7 (RCS revision 1.43, update #61):
+;; * Mode maked customizable.
+;; * Prefer `tildify-buffer' to own version of `tex-hard-spaces'.
+;; * Prefer `define-minor-mode' to `add-minor-mode' in GNU Emacs.
 
 ;;; Change Log[pl]:
 
@@ -202,17 +202,27 @@
 ;;   `tex-magic-space' pozostawa³a nieaktywna tam gdzie nie trzeba (np.
 ;;   w trybie matematycznym wykrywanym za pomoc± `texmathp').
 ;; Wersja 2.5 (RCS revision 1.26):
-;; * Usuniêcie `tex-toggle-magic-space'; u¿yj `tex-magic-space-mode'. 
+;; * Usuniêcie `tex-toggle-magic-space'; u¿yj `tex-magic-space-mode'.
 ;; Wersja 2.6 (RCS revision 1.31):
 ;; * Sprawdzania czy `tex-magic-space' powinno byæ nieaktywne zosta³o
 ;;   przepisane za pomoc± instrukcji warunkowej w g³ównej funkcji zamiast
 ;;   u¿ywania do tego porad (advice).
+;; Version 2.7 (RCS revision 1.43, update #61):
+;; * Parametry mode (trybu) ustalalne za pomoc± `customize'.
+;; * Preferuj `tildify-buffer' zamiast w³asnej wersji `tex-hard-spaces'.
+;; * Preferuj `define-minor-mode' zamiast `add-minor-mode' w GNU Emacs.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
 ;;; Code:
 
+(defgroup sierotki nil
+  "Support for non-breakable spaces after short (single-letter) words."
+  :tag "Tex Magic Space"
+  :group 'tex)
+
+(require 'cl) 			; to use `some' in `tex-magic-space'
 
 ;;;; ======================================================================
 ;;;; Add non-breakable spaces in existing document, interactively.
@@ -224,17 +234,26 @@
 ;; Zastêpuje znaki odstêpu przez znaki tyldy `~', czyli TeX-ow± nie³amliw±
 ;; spacjê, po jednoliterowych [polskich] spójnikach w ca³ym buforze.
 ;; Poni¿sza zmienna definiuje wyra¿enie regularne u¿ywane w `tex-hard-spaces'
-(defvar tex-hard-spaces-regexp "\\<\\([aeiouwzAEIOUWZ]\\)\\s +"
-  "*Regular expression which detects single [aeiouwz] for `tex-hard-spaces'.
+(if (fboundp 'tildify-buffer)
+    ;; use better tildify.el solution
+    ;; u¿yj rozwi±zania z tildify.el
+    (progn
+      (message "tex-hard-spaces aliased to tildify-buffer")
+      (defalias 'tex-hard-spaces 'tildify-buffer))
+
+  (defcustom tex-hard-spaces-regexp "\\<\\([aeiouwzAEIOUWZ]\\)\\s +"
+    "*Regular expression which detects single [aeiouwz] for `tex-hard-spaces'.
 The part of regular expression which matches string to be saved
 should be in parentheses, so the replace part \\\\1~ will work.
 
-Used as first argument to `query-replace-regexp'.")
-
-;; Zwyk³e `query-replace-regexp', czyli C-M-% dla odpowiedniego
-;; wyra¿enia regularnego, zapisanego w `tex-hard-spaces-regexp'
-(defun tex-hard-spaces ()
-  "Replace whitespace characters after single-letter word with `~'.
+Used as first argument to `query-replace-regexp'."
+    :type '(regexp)
+    :group 'sierotki)
+  
+  ;; Zwyk³e `query-replace-regexp', czyli C-M-% dla odpowiedniego
+  ;; wyra¿enia regularnego, zapisanego w `tex-hard-spaces-regexp'
+  (defun tex-hard-spaces ()
+    "Replace whitespace characters after single-letter word with `~'.
 Replaces whitespace characters following single-letter conjunctions by `~',
 the TeX non-breakable space in whole buffer, interactively.
 Uses `tex-hard-spaces-regexp' for single-letter conjunctions detection.
@@ -247,9 +266,10 @@ For on-the-fly 'tildification' turn on TeX Magic Space minor mode using
 command \\[tex-magic-space-mode].
 
 It is implemented using `query-replace-regexp'."
- (interactive)
- (query-replace-regexp tex-hard-spaces-regexp
-                       "\\1~"))
+    (interactive)
+    (query-replace-regexp tex-hard-spaces-regexp
+			  "\\1~"))
+  ) ;; end (if (fboundp 'tildify-buffer) ...)
 
 
 ;;;; ======================================================================
@@ -259,15 +279,12 @@ It is implemented using `query-replace-regexp'."
 ;;; Magic space by Michal Jankowski <michalj@fuw.edu.pl>
 ;;; Modified by Jakub Narêbski <jnareb@fuw.edu.pl>
 
-
 ;;; ----------------------------------------------------------------------
 ;;; Tests for `tex-magic-space'
 ;;; Testy dla `tex-magic-space'
 
-;; Workaround for XEmacs (not needed anymore?)
-;(unless (fboundp 'match-string-no-properties)
-;  (defalias 'match-string-no-properties 'match-string))
-
+;; Didn't work in XEmacs
+;; Nie dzia³a³ w XEmacs
 (defun texinverbp ()
   "Determine if point is inside LaTeX \\verb command.
 Returns nil or the pair (POINT-VERB-BEG . POINT-VERB-END) of positions where
@@ -278,9 +295,7 @@ This command uses the fact that the argument to \\verb cannot contain end of
 line characters.  Does not work with nested \\verbs."
   (interactive)
   (let ((point (point))
-	beg
-	end
-	delim)
+	beg end	delim)
   (save-excursion
     (and (setq beg (and (re-search-backward "\\\\verb\\*?\\([^a-zA-Z*\\n]\\)"
 					   (point-at-bol) t)
@@ -298,15 +313,23 @@ line characters.  Does not work with nested \\verbs."
 	       ((eolp) beg)
 	       (t (cons beg end)))))))
 
+
 ;;; ......................................................................
 ;;; Turning on tests for tex-magic-space
 ;;; Aktywacja sprawdzania/testów dla tex-magic-space i podobne
-(defvar tex-magic-space-do-checking nil
-  "*Non-nil if `tex-magic-space' checks `tex-magic-space-tests'.
+(defcustom tex-magic-space-do-checking nil
+  "*Non-nil if `tex-magic-space' should check `tex-magic-space-tests'.
+Set it to non-nil value if you want TeX Magic Space mode to check
+if it should add extra checking in addition to testing if we are
+after single-letter word (as defined by `tex-magic-space-regexp').
+For example such tests (as defined in `tex-magic-space-tests') could
+check if we are in restricted horizontal mode, like math mode.
 
-Set by `tex-magic-space-toggle-checking'")
+Set also by `tex-magic-space-toggle-checking'"
+    :type '(boolean)
+    :group 'sierotki)
 
-(defvar tex-magic-space-tests
+(defcustom tex-magic-space-tests
   (list
    (unless (and (boundp 'running-xemacs) running-xemacs) 'texinverbp)
    (if (or (featurep 'tex-site) (fboundp 'texmathp)) 'texmathp))
@@ -316,7 +339,9 @@ List of functions which are invoked, in order, to determine whether
 `tex-magic-space' could insert a ~ (i.e., a tex non-breakable
 space).  The tilde can be inserted only when every function returns
 a nil value.  The tests are run only when `tex-magic-space-do-checking'
-has non-nil value")
+has non-nil value"
+  :type '(repeat function)
+  :group 'sierotki)
 
 
 ;;; ----------------------------------------------------------------------
@@ -325,8 +350,8 @@ has non-nil value")
 
 ;; UWAGA: [czasami] polskie literki s± traktowane jako koniec s³owa dla 8bit
 ;;        tzn. przy u¿yciu `standard-display-european' do ich wprowadzania.
-;;        Bêdê próbowac znale¼æ dok³adne warunki wyst±pienia b³edu.
-(defvar tex-magic-space-regexp "\\<[aeiouwzAEIOUWZ]\\'"
+;;        Bêdê próbowaæ znale¼æ dok³adne warunki wyst±pienia b³êdu.
+(defcustom tex-magic-space-regexp "\\<[aeiouwzAEIOUWZ]\\'"
   "*Regular expression which detects single [aeiouwz] for `tex-magic-space'.
 `tex-magic-space' inserts `~' if this expression matches two characters before
 point, otherwise it inserts the key it is bound to (\\[tex-magic-space]),
@@ -337,8 +362,9 @@ single letter conjunction against the letter directly before the point.  The
 part before [aeiouwzAEIOUWZ] should match word beginning/boundary.
 
 ATTENTION: sometimes in unibyte mode the non US-ASCII letters are considered
-word boundary, even when they are word constituents.")
-
+word boundary, even when they are word constituents."
+  :type '(regexp)
+  :group 'sierotki)
 
 (defun tex-magic-space (&optional prefix)
   "Magic-space - insert non-breakable space after a single-letter word.
@@ -361,20 +387,17 @@ To use it turn on TeX Magic Space minor mode using command
 `tex-magic-space-mode' (\\[tex-magic-space-mode]).
 
 See also: `tex-hard-spaces'"
-  (interactive "p")	               ; Prefix arg jako liczba.  Nie robi I/O.
-  ;; Tests
+  (interactive "p")
   (unless (and tex-magic-space-do-checking
-	       (some (lambda (f) (and (fboundp f) (funcall f)))
+	       (some (lambda (f) (and (functionp f) (funcall f)))
 		     tex-magic-space-tests))
-    ;; tests failed
-    (when (string-match
-	   tex-magic-space-regexp      ; wyra¿enie rozpoznaj±ce samotne spójniki
+    (when (string-match tex-magic-space-regexp 
 	   (buffer-substring (max (point-min) (- (point) 2)) (point)))
-      (setq last-command-char ?~)))    ; wstawiamy `~' zamiast SPC
-  (self-insert-command (or prefix 1))) ; daje obs³ugê auto-fill, abbrev, blinkin-paren
+      (setq last-command-char ?~))) 
+  (self-insert-command (or prefix 1)))
 
 (defun debug-tex-magic-space (&optional prefix)
-  "Version of `tex-magic-space' which does'n do any testing."
+  "Version of `tex-magic-space' which doesn't do any testing."
   (interactive "p")
   (let ((tex-magic-space-do-checking nil))
     (tex-magic-space prefix)))
@@ -382,8 +405,17 @@ See also: `tex-hard-spaces'"
 
 ;;; ----------------------------------------------------------------------
 ;;; The TeX Magic Space mode definition and initialization
-;;; Definicja trybu i inicjalizacja
+;;; Definicja trybu TeX Magic Space i jego inicjalizacja
 
+;;; this can be done via defcustom, a la:
+;;     (defcustom show-paren-mode nil
+;;       "Toggle Show Paren mode..."
+;;       :set (lambda (symbol value)
+;;              (show-paren-mode (or value 0)))
+;;       :initialize 'custom-initialize-default
+;;       :type 'boolean
+;;       :group 'paren-showing
+;;       :require 'paren)
 
 (defvar tex-magic-space-mode nil
   "*Determines if TeX Magic Space mode is active.
@@ -398,6 +430,7 @@ You can set it directly or use the command `tex-magic-space-mode'.")
       (define-key map [?\C-c ?\C- ] 'tex-magic-space-toggle-checking))
     map)
   "Keymap for TeX Magic Space mode.")
+
 
 ;;;###autoload
 (defun turn-on-tex-magic-space-mode ()
@@ -420,17 +453,10 @@ runs `tex-magic-space-toggle-checking'.
   (setq tex-magic-space-mode
 	(if (null arg) (not tex-magic-space-mode)
 	  (> (prefix-numeric-value arg) 0)))
-  ;; alternative, less clear and slower
-;;;  (setq tex-magic-space-mode
-;;;	(not (or (and (null arg) tex-magic-space-mode)
-;;;		 (<= (prefix-numeric-value arg) 0))))
-  ;; uaktualnij modeline
-  ;; IDEA: mo¿na by dodaæ informowanie o w(y)³±czeniu tego trybu
   (force-mode-line-update))
 
-
 (defun tex-magic-space-toggle-checking (&optional arg)
-  "Toggle whether `tex-magic-space' checks `tex-magic-space-tests'.
+  "Toggle whether `tex-magic-space' check `tex-magic-space-tests'.
 With prefix argument ARG, activate checking if ARG is positive,
 otherwise deactivate it.
 
@@ -445,62 +471,48 @@ Sets `tex-magic-space-do-checking'."
 	     (if tex-magic-space-do-checking "a" "dea"))))
 
 
-;;; NOTES:
-;;; * "Hide ifdef" mode z hideif.el u¿ywa "pseudotrybu" `hide-ifdef-hiding' do
-;;;   wy¶wietlania opcjonalnego " Hiding", tzn. dodaje do `minor-mode-alist'
-;;;   (hide-ifdef-hiding . " Hiding") oprócz (hide-ifdef-mode . " Ifdef").
-;;; * "CC Mode" analogicznie, dodaje (c-auto-hungry-string
-;;;   . c-auto-hungry-string), gdzie c-auto-hungry-string to odpowiednio "/ah"
-;;;   lub analogiczne; automagicznie siê zmienia.
-;;; * elementami `minor-mode-alist' powinny byæ pary (VARIABLE STRING), gdzie
-;;;   STRING to mo¿e byæ (patrz `mode-line-format'):
-;;;   - STRING, u¿yty jak jest, z wykorzystaniem %-sth
-;;;   - SYMBOL, u¿yta jest jego warto¶æ (je¶li ró¿na od t lub nil); %-sth
-;;;     nie s± rozpoznawane gdy warto¶ci± jest string
-;;;   - (:eval FORM), FORM jest obliczana i umieszczany wynik (Emacs 21)
-;;;   - (STRING REST...), (LIST REST...), oblicz rekurencyjnie i po³±cz wyniki
-;;;   - (SYMBOL THEN ELSE) lub (SYMBOL THEN), np. u¿ycie `minor-mode-alist'
-;;;   - (WIDTH REST...), dope³nione WIDTH spacjami je¶li WIDTH > 0, skrócony
-;;;     do -WIDTH kolumn je¶li WIDTH < 0; przyk³ad: (-3 "%p"), procent pliku
-;;; * wiêkszo¶æ trybów "rêcznie" dodaje siê do modeline...
+(defun use-add-minor-mode ()
+  "Use `add-minor-mode' to create minor mode `tex-magic-space-mode'.
+In XEmacs `add-minor-mode' is compiled Lisp function, in GNU Emacs 
+it is an XEmacs-compatibility functio in `subr'."
+  (message "Define tex-magic-space-mode using add-minor-mode") ; DEBUG!
+  (put 'tex-magic-space-mode :included '(memq major-mode '(latex-mode
+							   tex-mode)))
+  (put 'tex-magic-space-mode :menu-tag "TeX Magic Space")
+  (add-minor-mode 'tex-magic-space-mode
+		  (list " ~" '(tex-magic-space-do-checking ":Chk"))
+		  tex-magic-space-mode-map))
 
-;;; 'Zarejestrowanie' trybu; na podstawie kodu z reftex.el
-(if (fboundp 'add-minor-mode)
-    ;; Je¶li dostêpna jest funkcja `add-minor-mode' (w FSF Emacs jest to funkcja
-    ;; kompatybilno¶ci z XEmacsem, zdefiniowana w `subr'), to u¿yj jej aby
-    ;; uzyskaæ ekstra funkcjonalno¶æ, tzn. wpis do minor mode menu w modeline.
-    (progn
-      ;; W³asno¶æ (property) :included ustala, czy dany trub jest widoczny w
-      ;; minor mode menu w modeline.  Teoretycznie podana warto¶æ powinna
-      ;; spowodowaæ wpisanie do menu tylko dla podanych trybów; w FSF Emacs 21.2-7
-      ;; jednak¿e w³asno¶æ ta jest sprawdzana tylko przy wykonywaniu
-      ;; `add-minor-mode'; w XEmacs 21.4.6-7 nie jest w ogóle sprawdzana
-      (put 'tex-magic-space-mode :included '(memq major-mode '(latex-mode
-							       tex-mode)))
-      ;; W³asno¶æ (property) :menu-tag podaje tekst pojawiaj±cy siê w minor mode
-      ;; menu w modeline; w XEmacs 21.4.6-7 nie daje ¿adnego efektu, w minor
-      ;; mode menu s± wszystkie minor mode, ten tryb jako "tex-magic-space-mode"
-      ;; IDEA: mo¿na by dodaæ do 'tex-magic-space-mode w³asno¶æ
-      ;; `menu-enable'; i tak (nie wiem dlaczego) nie dzia³a; mo¿e FORM nie eval?
-;;;   (put 'tex-magic-space-mode 'menu-enable '(memq major-mode '(latex-mode
-;;;						                  tex-mode)))
-      ;; je¶li `add-minor-mode' u¿ywa `menu-item' to u¿yæ w³asno¶ci :visible
-      ;; FORM lub :included FORM, :key-sequence KEY (aby przyspieszyæ ³adowanie)
-      ;; NOTE: `add-minor-mode' u¿ywa (define-key mode-line-menu... :button ...)
-      (put 'tex-magic-space-mode :menu-tag "TeX Magic Space")
-      ;; IDEA: tutaj mo¿na by dodaæ za pomoc± funkcji `propertize' dodatkowe
-      ;; w³asno¶ci typu :help-echo, :local-map, :display czy :face
-      (add-minor-mode 'tex-magic-space-mode
-		      (list " ~" '(tex-magic-space-do-checking ":Chk"))
-		      tex-magic-space-mode-map))
-  ;; Standardowy sposób dodania minor mode, za "Emacs Lisp Reference Manual"
-;;;(define-key mode-line-mode-menu
-;;; (vector 'tex-magic-space-mode)
-;;; ;; mo¿na by u¿yæ ` do "cytowania" (quote) tylko czê¶ci
-;;; (list 'menu-item "TeX Magic Space"
-;;;		'tex-magic-space-mode
-;;;		:visible '(memq major-mode '(latex-mode tex-mode))
-;;;		:button   (cons :toggle tex-magic-space-mode)))
+(defun use-define-minor-mode ()
+  "Use `define-minor-mode' to create minor mode `tex-magic-space-mode'.
+The `define-minor-mode' function is defined in `easy-mmode'."
+  (message "Define tex-magic-space-mode using define-minor-mode") ; DEBUG!
+  (define-minor-mode tex-magic-space-mode
+    "Toggle TeX Magic Space mode.
+With no argument, this command toggles the mode.
+Non-null prefix argument turns on the mode.
+Null prefix argument turns off the mode.
+
+In TeX Magic Space mode typing a space inserts tilde, the TeX non-breakable
+space, after single-letter prepositions described by `tex-magic-space-regexp'
+if we are not in one of situations described by `tex-magic-space-tests'.
+The testing can be toggled using `\\[tex-magic-space-toggle-checking]' which
+runs `tex-magic-space-toggle-checking'.
+ 
+\\<tex-magic-space-mode-map>"
+    (memq major-mode '(latex-mode tex-mode)) ; INIT-VALUE
+    (list " ~" '(tex-magic-space-do-checking ":Chk"))
+    tex-magic-space-mode-map
+    ;; BODY
+    (define-key mode-line-mode-menu [tex-magic-space-mode]
+      `(menu-item ,(purecopy "TeX Magic Space") tex-magic-space-mode
+		  :visible (memq ,major-mode (latex-mode tex-mode))
+		  :button (:toggle . tex-magic-space-mode)))
+    :group 'sierotki))
+    
+(defun use-own-code-to-define-mode ()
+  "Define minor mode `tex-magic-space-mode' \"by hand\"."
+  (message "Define tex-magic-space-mode using own code") ; DEBUG!
   (unless (assq 'tex-magic-space-mode minor-mode-alist)
     (setq minor-mode-alist
 	  (cons '(tex-magic-space-mode (" ~" (tex-magic-space-do-checking ":Chk")))
@@ -511,39 +523,37 @@ Sets `tex-magic-space-do-checking'."
   (unless (assq 'tex-magic-space-mode-map minor-mode-map-alist)
     (setq minor-mode-map-alist
 	  (cons (cons 'tex-magic-space-mode tex-magic-space-mode-map)
-		minor-mode-map-alist))))
+		minor-mode-map-alist)))
+  (define-key mode-line-mode-menu [tex-magic-space-mode]
+    `(menu-item ,(purecopy "TeX Magic Space") tex-magic-space-mode
+		:visible (memq ,major-mode (latex-mode tex-mode))
+		:button (:toggle . tex-magic-space-mode))))
+
+
+;; Define minor mode `tex-magic-space-mode'
+;; Zdefiniuj `tex-magic-space-mode' 
+(if (and (boundp 'running-xemacs) running-xemacs)
+    (cond 				; XEmacs
+     ((fboundp 'add-minor-mode) (use-add-minor-mode))
+     ((fboundp 'define-minor-mode) (use-define-minor-mode))
+     (t	(use-own-code-to-define-mode)))
+  ;;
+  (cond 				; GNU Emacs
+   ((fboundp 'define-minor-mode) (use-define-minor-mode))
+   ((fboundp 'add-minor-mode) (use-add-minor-mode))
+   (t (use-own-code-to-define-mode))))
 
 
 ;;;; ======================================================================
-;;;; Inicjalizacja dla zapobiegania powstawaniu sierotek 'w locie'
-
 ;;; Initialization by Jakub Narêbski <jnareb@fuw.edu.pl>
 ;;; and Adam Przepiórkowski <adamp_at@at_ipipan.waw.pl>
+;;; Inicjalizacja dla zapobiegania powstawaniu sierotek 'w locie'
 
+;; Set globally `C-c SPC' to `tex-magic-space-mode'
 ;; Przypisz globalnie `tex-magic-space-mode' do `C-c SPC'
-;; `mode-specific-map' to (globalna) mapa klawiatury dla prefiksu C-c
-;; IDEA: `tex-magic-space-toggle-checking' mo¿e byæ w mapie dla TeX Magic
-;; Space mode, tzn. w `tex-magic-space-mode-map'; jako prefiksu mo¿na by
-;; u¿yæ `C-c C-SPC', a jako klawiszy " ", "m", "f", "u".
 (define-key mode-specific-map " " 'tex-magic-space-mode)
-;(define-key mode-specific-map "@" 'tex-magic-space-toggle-checking)
-;; aby wpisaæ 'C-SPC' trzeba u¿yæ wektora zamiast ³añcucha, t.j. [?\C- ]
 
-;; TO DO: przepisaæ to z powrotem na LaTeX-mode-hook, TeX-mode-hook,
-;; reftex-mode-hook i tym podobne.  `define-key' dla odpowiedniej mapy
-;; wystarczy zdefiniowaæ raz w chwili gdy mapa jest dostêpna (za pomoc±
-;; `eval-after-load') i domy¶lnie w danym trybie we wszystkich buforach
-;; `tex-magic-space' bêdzie w³±czone lub nie.  `tex-magic-space-mode' (lub
-;; ustawienie zmiennej) jest lokalne dla bufora (i takie powinno pozostaæ),
-;; wiêc nale¿y dodaæ je do odpowiednich haków za pomoc± `add-hook' (uwaga:
-;; jako argument pobiera on FUNCTION, a nie FORM!).
-
-;; HAKI: reftex-mode-hook, reftex-load-hook (RefTeX), TeX-mode-hook,
-;; LaTeX-mode-hook (AUCTeX, nieudokumentowane),
-;; TeX-auto-prepare-hook/TeX-auto-cleanup-hook (AUCTeX), bibtex-mode-hook
-;; (BibTeX), tex-mode-hook, plain-tex-mode-hook/latex-mode-hook (tex-mode);
-;; uruchamia siê tak¿e text-mode-hook (AUCTeX, tex-mode)
-
+;; Turn on TeX Magic Space mode for known (La)TeX modes
 ;; W³±cz TeX Magic Space mode dla znanych trybów (La)TeX-owych
 (defmacro tex-magic-space-mode-add-to-hook (hook)
   "Add `turn-on-tex-magic-space-mode' to HOOK."
