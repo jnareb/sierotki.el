@@ -1,6 +1,6 @@
 ;;; sierotki.el --- Introduce tildes after single-letter words
 ;;
-;; Copyright (C) 1999-2005  Micha³ Jankowski, Jakub Narêbski
+;; Copyright (C) 1999-2006  Micha³ Jankowski, Jakub Narêbski
 ;; 
 ;; Authors:    Ryszard Kubiak <rysiek@ipipan.gda.pl>
 ;;             Micha³ Jankowski <michalj@fuw.edu.pl>
@@ -8,11 +8,11 @@
 ;; Maintainer: Jakub Narêbski <jnareb@fuw.edu.pl>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Sat Jan 21 12:49:02 2006 (3600 CET)
+;; Last-Updated: Sun Jan 22 14:15:18 2006 (3600 CET)
 ;;           By: Jakub Narebski
-;;     Update #: 78
+;;     Update #: 81
 ;;
-;; Version:     2.7.1
+;; Version:     2.7.2
 ;; RCS Version:	$Revision$
 ;; RCS Date:    $Date$
 ;; Keywords:    TeX, wp, convenience
@@ -72,6 +72,7 @@
 ;;
 ;;    (turn-on-tex-magic-space-in-tex-modes)
 
+
 ;;; Installation[pl]:
 
 ;; Aby u¿yæ tego pakietu, umie¶æ nastêpuj±c± linijkê w swoim pliku .emacs
@@ -97,6 +98,7 @@
 ;;    (turn-on-tex-magic-space-in-tex-modes)
 
 
+
 ;;; Description:
 
 ;; The purpose of this package is to connect some defined words (by default
@@ -118,17 +120,28 @@
 ;; after one letter prepositions during writing.  It is implemented
 ;; via the `tex-magic-space' command which is a kind of electric space
 ;; and should be bound to SPC to work.  To activate this functionality
-;; you have to turn on `tex-magic-space-mode'.  The minor mode TeX Magic
-;; Space can be turned on from the modeline minor mode menu.  This mode
-;; is denoted by " ~" in the modeline.  The ":Chk" after " ~" in the modeline
-;; shows that test are enabled.
+;; you have to turn on `tex-magic-space-mode'.  After loading this
+;; package this command is bound to the `C-c SPC'.  The minor mode TeX
+;; Magic Space can be also turned on from the modeline minor mode
+;; menu.  This mode is denoted by " ~" in the modeline.  The ":Chk"
+;; after " ~" in the modeline shows that test are enabled.  You can
+;; enable tests using `tex-magic-space-toggle-checking' command, bound to the
+;; `C-c C-SPC'.
+;;
+;; For the time being the tests in `tex-magic-space-tests' are in early beta
+;; phase; if you want to insert ` ' where `tex-magic-space-mode' inserts
+;; `~', use `C-q SPC' to enter single space, or turn off the TeX Magic Space
+;; mode fro editing the fragment of document where nonbreakable spaces are
+;; not needed.
 ;;
 ;; The TeX Magic Space mode can be automatically turned on in the TeX modes
 ;; by adding the equivalent of `turn-on-tex-magic-space-mode' to the
 ;; hooks defined in the variable `tex-magic-space-mode-hooks-list' using
 ;; the command `turn-on-tex-magic-space-in-tex-modes'.
 
+;; See also: http://www.emacswiki.org/cgi-bin/wiki/NonbreakableSpace
 ;; Documentation and comments: Jakub Narêbski.
+
 
 ;;; Description[pl]:
 
@@ -149,17 +162,57 @@
 ;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest ona
 ;; implementowana przez komendê `tex-magic-space', któr± nale¿y podpi±æ do
 ;; spacji.  Do aktywowania tej funkcjonalno¶ci nale¿y w³±czyæ
-;; `tex-magic-space-mode'.  Tryb (minor mode) TeX Magic Space mo¿na aktualnie
-;; w³±czyæ tak¿e z modeline minor mode menu; jest on oznaczany za pomoc± " ~".
-;; Ewentualne dodatkowe oznaczenia po " ~" informuj±, ¿e porady/testy s±
-;; aktywne.
+;; `tex-magic-space-mode'.  Po za³adowaniu tego pakietu polecenie to jest
+;; przypisane do `C-c SPC'.  Tryb (minor mode) TeX Magic Space mo¿na
+;; aktualnie w³±czyæ tak¿e z modeline minor mode menu; jest on oznaczany za
+;; pomoc± " ~".  Dodatkowe oznaczenie ":Chk" po " ~" informuje, ¿e
+;; porady/testy s± aktywne.  Testy mo¿na w³±czyæ za pomoc± polecenia
+;; `tex-magic-space-toggle-checking' przypisanego do `C-c C-SPC'.
+;;
+;; Na razie sprawdzanie czy nale¿y wstawiaæ nie³amliwe spacje po
+;; jednoliterowych spójnikach jest w wersji wstêpnej; je¶li chcesz wstawiæ 
+;; ` ' tam gdzie mode wstawia `~' u¿yj `C-q SPC' lub wy³±cz tryb na czas
+;; edycji fragmentu gdzie nie³amliwe spacje nie s± po¿±dane. 
 ;;
 ;; Funkcjonalno¶æ ta mo¿e byæ automatycznie w³±czana w trybach TeX-owych za
 ;; pomoc± dodania odpowiednika `turn-on-tex-magic-space-mode' do odpowiednich
 ;; haczyków (zdefiniowanych w zmiennej `tex-magic-space-mode-hooks-list') za
 ;; pomoc± polecenia (funkcji) `turn-on-tex-magic-space-in-tex-modes'.
 
+;; Zobacz tak¿e: http://www.emacswiki.org/cgi-bin/wiki/NonbreakableSpace
 ;; Dokumentacja i komentarze: Jakub Narêbski.
+
+
+
+;;; TO DO:
+;; * More and better tests checking if use nonbreakable space, testing
+;;   e.g. if we are in comment, table, verbatimlike environment.
+;; * Guessing if the TeX Magic Space mode should be turned on based on the
+;;   contents of the (La)TeX file header (preamble): either separate command
+;;   'guess-*' or appropriate style files for AUCTeX: LaTeX packages polski
+;;   and babel.
+;; * Extend `tex-magic-space' to add tildes also after e.g. 'tys.'
+;; * Add `tex-magic-space-checking-why' (a la `texmathp-why'), which would
+;;   tell which tests caused magic space to be inactive. 
+;; * Make the abbreviations, expansion of which ends in single-letter word,
+;;   to have `~' (tilde) instead of ` ' (space) after expanded abbrev. 
+;; * Bring back History: section?
+
+
+;;; TO DO[pl]:
+;; * Wiecej i lepsze testy sprawdzaj±ce czy u¿ywaæ nie³amliwej spacji, 
+;;   np. w komentarzach, tabelach, otoczeniach typu verbatim.
+;; * Zgadywanie czy nale¿y w³±czyæ TeX Magic Space mode na podstawie
+;;   nag³ówka pliku (La)TeX-owego: albo osobne polecenie 'guess-*',
+;;   albo odpowiednie pliki stylu dla AUCTeX-a: pakiety polski i babel.
+;; * Rozszerzyæ `tex-magic-space' by dowi±zywa³o tak¿e np. `tys.'.
+;; * Dodaæ `tex-magic-space-checking-why' (a la `texmathp-why'), które
+;;   bêdzie podawa³o dlaczego magiczna spacja jest nieaktywna.
+;; * Sprawiæ by skróty których rozwiniêcie koñczy siê jednoliterowym
+;;   spójnikiem mia³y wstawian± `~' zamiast ` ' po rozwiniêciu.
+;; * Przywróciæ Historia[pl]:?
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
@@ -187,6 +240,7 @@
 ;; * Prefer `tildify-buffer' to own version of `tex-hard-spaces'.
 ;; * Prefer `define-minor-mode' to `add-minor-mode' in GNU Emacs.
 
+
 ;;; Change Log[pl]:
 
 ;; Wersja 1.2 (RCS revision 1.2):
@@ -211,6 +265,7 @@
 ;; * Parametry mode (trybu) ustalalne za pomoc± `customize'.
 ;; * Preferuj `tildify-buffer' zamiast w³asnej wersji `tex-hard-spaces'.
 ;; * Preferuj `define-minor-mode' zamiast `add-minor-mode' w GNU Emacs.
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
