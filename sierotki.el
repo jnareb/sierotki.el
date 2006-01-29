@@ -8,11 +8,11 @@
 ;; Maintainer: Jakub Narêbski <jnareb@fuw.edu.pl>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Sun Jan 29 16:25:32 2006 (3600 CET)
+;; Last-Updated: Sun Jan 29 16:33:39 2006 (3600 CET)
 ;;           By: Jakub Narebski
-;;     Update #: 101
+;;     Update #: 102
 ;;
-;; Version:     2.7.2
+;; Version:     2.8
 ;; RCS Version:	$Revision$
 ;; RCS Date:    $Date$
 ;; Keywords:    TeX, wp, convenience
@@ -197,9 +197,6 @@
 ;; * Make the abbreviations, expansion of which ends in single-letter word,
 ;;   to have `~' (tilde) instead of ` ' (space) after expanded abbrev. 
 ;; * Bring back History: section?
-;; * Do not leave solitary single letters at the end of the line in text
-;;   modes (without command for nonbreakable space), in `fill-paragraph'
-;;   and `auto-fill-mode'. Request by Marek Twardochlib <marekt@gmx.net>
 
 
 ;;; TODO[pl]:
@@ -214,10 +211,7 @@
 ;; * Sprawiæ by skróty których rozwiniêcie koñczy siê jednoliterowym
 ;;   spójnikiem mia³y wstawian± `~' zamiast ` ' po rozwiniêciu.
 ;; * Przywróciæ Historia[pl]:?
-;; * Rozwi±zaæ problem osieroconych pojedynczych literek na koñcu linii
-;;   po wykonaniu `fill-paragraph' (tzn. w trybie tekstowym, bez specjalnego
-;;   polecenia dla nie³amlowej spacji). Hack do `fill-paragraph' i/lub
-;;   `auto-fill-mode' lub properties. Marek Twardochlib <marekt@gmx.net>
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -245,6 +239,11 @@
 ;; * Mode maked customizable.
 ;; * Prefer `tildify-buffer' to own version of `tex-hard-spaces'.
 ;; * Prefer `define-minor-mode' to `add-minor-mode' in GNU Emacs.
+;; Version 2.8 (RCS revision 1.46, update #103):
+;; * The main test put into `tex-magic-space-p'.
+;; * Added `fill-single-letter-word-nobreak-p' and
+;;   `fill-tex-magic-space-nobreak-p' to use as value of
+;;   `fill-nobreak-predicate' - TeX Magic Space equivalent for plain text.
 
 
 ;;; Change Log[pl]:
@@ -267,10 +266,15 @@
 ;; * Sprawdzania czy `tex-magic-space' powinno byæ nieaktywne zosta³o
 ;;   przepisane za pomoc± instrukcji warunkowej w g³ównej funkcji zamiast
 ;;   u¿ywania do tego porad (advice).
-;; Version 2.7 (RCS revision 1.43, update #61):
+;; Wersja 2.7 (RCS revision 1.43, update #61):
 ;; * Parametry mode (trybu) ustalalne za pomoc± `customize'.
 ;; * Preferuj `tildify-buffer' zamiast w³asnej wersji `tex-hard-spaces'.
 ;; * Preferuj `define-minor-mode' zamiast `add-minor-mode' w GNU Emacs.
+;; Wersja 2.8 (RCS revision 1.46, update #103):
+;; * Test na sierotki wydzielony do `tex-magic-space-p'.
+;; * Dodano funkcje `fill-single-letter-word-nobreak-p' 
+;;   i `fill-tex-magic-space-nobreak-p' do u¿ycia jako warto¶æ zmiennej 
+;;   `fill-nobreak-predicate' - równowa¿nik TeX Magic Space dla tekstu.
 
 
 
@@ -456,11 +460,10 @@ To use it turn on TeX Magic Space minor mode using command
 
 See also: `tex-hard-spaces'"
   (interactive "p")
-  (unless (and tex-magic-space-do-checking
-	       (some (lambda (f) (and (functionp f) (funcall f)))
+  (unless (and tex-magic-space-do-checking 
+	       (some (lambda (f) (and (functionp f) (funcall f))) 
 		     tex-magic-space-tests))
-    (when (string-match tex-magic-space-regexp 
-	   (buffer-substring (max (point-min) (- (point) 2)) (point)))
+    (when (tex-magic-space-p) 
       (setq last-command-char ?~))) 
   (self-insert-command (or prefix 1)))
 
