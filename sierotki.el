@@ -8,16 +8,16 @@
 ;; Maintainer: Jakub Narêbski <jnareb@fuw.edu.pl>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Sun Jan 22 14:15:18 2006 (3600 CET)
+;; Last-Updated: Sun Jan 29 16:25:32 2006 (3600 CET)
 ;;           By: Jakub Narebski
-;;     Update #: 81
+;;     Update #: 101
 ;;
 ;; Version:     2.7.2
 ;; RCS Version:	$Revision$
 ;; RCS Date:    $Date$
 ;; Keywords:    TeX, wp, convenience
-;; URL: http://www.fuw.edu.pl/~jnareb/sierotki.el
-;;      http://www.emacswiki.org/emacs/sierotki.el
+;; URL: http://www.emacswiki.org/emacs/sierotki.el
+;;      http://www.fuw.edu.pl/~jnareb/sierotki.el
 ;; EmacsWiki: NonbreakableSpace
 ;;
 ;; Compatibility: Emacs21, XEmacs21
@@ -184,7 +184,7 @@
 
 
 
-;;; TO DO:
+;;; TODO:
 ;; * More and better tests checking if use nonbreakable space, testing
 ;;   e.g. if we are in comment, table, verbatimlike environment.
 ;; * Guessing if the TeX Magic Space mode should be turned on based on the
@@ -197,9 +197,12 @@
 ;; * Make the abbreviations, expansion of which ends in single-letter word,
 ;;   to have `~' (tilde) instead of ` ' (space) after expanded abbrev. 
 ;; * Bring back History: section?
+;; * Do not leave solitary single letters at the end of the line in text
+;;   modes (without command for nonbreakable space), in `fill-paragraph'
+;;   and `auto-fill-mode'. Request by Marek Twardochlib <marekt@gmx.net>
 
 
-;;; TO DO[pl]:
+;;; TODO[pl]:
 ;; * Wiecej i lepsze testy sprawdzaj±ce czy u¿ywaæ nie³amliwej spacji, 
 ;;   np. w komentarzach, tabelach, otoczeniach typu verbatim.
 ;; * Zgadywanie czy nale¿y w³±czyæ TeX Magic Space mode na podstawie
@@ -211,7 +214,10 @@
 ;; * Sprawiæ by skróty których rozwiniêcie koñczy siê jednoliterowym
 ;;   spójnikiem mia³y wstawian± `~' zamiast ` ' po rozwiniêciu.
 ;; * Przywróciæ Historia[pl]:?
-
+;; * Rozwi±zaæ problem osieroconych pojedynczych literek na koñcu linii
+;;   po wykonaniu `fill-paragraph' (tzn. w trybie tekstowym, bez specjalnego
+;;   polecenia dla nie³amlowej spacji). Hack do `fill-paragraph' i/lub
+;;   `auto-fill-mode' lub properties. Marek Twardochlib <marekt@gmx.net>
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -421,6 +427,13 @@ word boundary, even when they are word constituents."
   :type '(regexp)
   :group 'sierotki)
 
+;; !!! Expand docstring !!!
+;; !!! Docstring do poprawienia !!!
+(defun tex-magic-space-p ()
+  "Returns true if there should be inserted nonbreakable space."
+  (string-match tex-magic-space-regexp 
+	   (buffer-substring (max (point-min) (- (point) 2)) (point))))
+
 (defun tex-magic-space (&optional prefix)
   "Magic-space - insert non-breakable space after a single-letter word.
 Interactively, PREFIX is the prefix arg (default 1).
@@ -457,6 +470,44 @@ See also: `tex-hard-spaces'"
   (let ((tex-magic-space-do-checking nil))
     (tex-magic-space prefix)))
 
+;;; ----------------------------------------------------------------------
+;;; The TeX Magic Space mode equivalent for filling (word wrap)
+;;; Równowa¿nik TeX Magic Space mode dla automatycznego zawijania linii
+
+;;; see: http://www.emacswiki.org/cgi-bin/wiki/FillParagraph
+;; It is simplified `fill-french-nobreak-p' from textmodes/fill.el.
+;; The function `fill-french-nobreak-p' first appeared in textmodex/fill.el
+;; rev. 1.132, and the single-letter detection code first appeared in
+;; rev. 1.132, correct in 1.181.  Not present in GNU Emacs 21.3
+(defun fill-single-letter-word-nobreak-p ()
+  "Don't break a line after single letter word.
+This is used in `fill-nobreak-predicate' to prevent breaking lines just
+after a single letter word."
+  (save-excursion
+    (skip-chars-backward " \t")
+    (unless (bolp)
+      (backward-char 1)
+      ;; Don't cut right after a single-letter word.
+      (and (memq (preceding-char) '(?\t ?\ ))
+	   (eq (char-syntax (following-char)) ?w)))))
+
+(defun fill-tex-magic-space-nobreak-p ()
+  "Don't break a line after where `tex-magic-space' would insert `~'.
+
+Don't break a line after place where function `tex-magic-space' (or, to be
+more exact `tex-magic-space-p' test) would insert non-breakable space,
+i.e. tilde ('~').
+ 
+This is used in `fill-nobreak-predicate'."
+  (save-excursion
+    (skip-chars-backward " \t")
+    (unless (bolp)
+      (backward-char 1)
+      (tex-magic-space-p))))
+
+;; `fill-region-as-paragraph' used by `fill-paragraph', and
+;; `do-auto-fill' used by `auto-fill-mode' uses this predicate.
+;(setq fill-nobreak-predicate 'fill-single-letter-word-nobreak-p)
 
 ;;; ----------------------------------------------------------------------
 ;;; The TeX Magic Space mode definition and initialization
