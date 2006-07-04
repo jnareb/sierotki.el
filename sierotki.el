@@ -8,11 +8,11 @@
 ;; Maintainer: Jakub Narêbski <jnareb@fuw.edu.pl>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Sun Jan 29 16:33:39 2006 (3600 CET)
+;; Last-Updated: Sun Jun 25 20:49:08 2006 (7200 CEST)
 ;;           By: Jakub Narebski
-;;     Update #: 102
+;;     Update #: 107
 ;;
-;; Version:     2.8
+;; Version:     2.8.2
 ;; RCS Version:	$Revision$
 ;; RCS Date:    $Date$
 ;; Keywords:    TeX, wp, convenience
@@ -71,6 +71,14 @@
 ;; TeX modes put the following line in your .emacs after (require 'sierotki)
 ;;
 ;;    (turn-on-tex-magic-space-in-tex-modes)
+;;
+;; If you want filling (`fill-paragraph' and `auto-fill-mode') to not break
+;; line after single letter words, put one of the following lines in your
+;; .emacs after (require 'sierotki)
+;;
+;;    (setq fill-nobreak-predicate 'fill-single-letter-word-nobreak-p)
+;; or
+;;    (setq fill-nobreak-predicate 'fill-tex-magic-space-nobreak-p)
 
 
 ;;; Installation[pl]:
@@ -96,6 +104,15 @@
 ;; .emacs po (require 'sierotki)
 ;;
 ;;    (turn-on-tex-magic-space-in-tex-modes)
+;;
+;; Je¶li chcesz by Emacs ³ami±c wiersze (`fill-paragraph' i
+;; `auto-fill-mode') nie ³ama³ linii za jednoliterowymi wyrazami
+;; ('sierotkami'), dodaj jedn± z poni¿szych linii do swojego .emacs 
+;; za (require 'sierotki) 
+;;
+;;    (setq fill-nobreak-predicate 'fill-single-letter-word-nobreak-p)
+;; lub
+;;    (setq fill-nobreak-predicate 'fill-tex-magic-space-nobreak-p)
 
 
 
@@ -105,7 +122,7 @@
 ;; one letter Polish prepositions) with the following words by tilde, which
 ;; is the non-breakable space in TeX.  This is needed to avoid one letter
 ;; prepositions at line endings in TeX documents, which is required by
-;; the Polish and Czech ortography/typography rules.
+;; the Polish and Czech typography/typesetting rules.
 ;;
 ;; This program serves two purposes.  First of them is to check the text
 ;; and suggest adding missing tildes in some places.  This function is
@@ -138,6 +155,13 @@
 ;; by adding the equivalent of `turn-on-tex-magic-space-mode' to the
 ;; hooks defined in the variable `tex-magic-space-mode-hooks-list' using
 ;; the command `turn-on-tex-magic-space-in-tex-modes'.
+;;
+;; NEW: There are also defined two fill predicates,
+;; `fill-single-letter-word-nobreak-p' and `fill-tex-magic-space-nobreak-p',
+;; which after set as value of `fill-nobreak-predicate' variable makes
+;; filling (`M-q' aka `fill-paragraph' and `auto-fill-mode') to not break
+;; line after single letter words.  The latter predicate uses the same test
+;; as TeX Magic Space mode.  Not shown in modeline.
 
 ;; See also: http://www.emacswiki.org/cgi-bin/wiki/NonbreakableSpace
 ;; Documentation and comments: Jakub Narêbski.
@@ -178,6 +202,14 @@
 ;; pomoc± dodania odpowiednika `turn-on-tex-magic-space-mode' do odpowiednich
 ;; haczyków (zdefiniowanych w zmiennej `tex-magic-space-mode-hooks-list') za
 ;; pomoc± polecenia (funkcji) `turn-on-tex-magic-space-in-tex-modes'.
+;;
+;; NOWE: Zosta³y tak¿e zdefiniowane dwie funkcje
+;; `fill-single-letter-word-nobreak-p' i `fill-tex-magic-space-nobreak-p',
+;; które wstawione jako warto¶æ zmiennej `fill-nobreak-predicate' powoduj±,
+;; ¿e Emacs ³ami±c linie (`M-q' czyli `fill-paragraph', oraz
+;; `auto-fill-mode') nie zostawia samotnych jednoliterowych wyrazów na koñcu
+;; wiersza (sierotek).  Druga z funkcji u¿ywa tego samego testu co  TeX
+;; Magic Space mode.  Nie pokazywane automatycznie w modeline.
 
 ;; Zobacz tak¿e: http://www.emacswiki.org/cgi-bin/wiki/NonbreakableSpace
 ;; Dokumentacja i komentarze: Jakub Narêbski.
@@ -210,7 +242,7 @@
 ;;   bêdzie podawa³o dlaczego magiczna spacja jest nieaktywna.
 ;; * Sprawiæ by skróty których rozwiniêcie koñczy siê jednoliterowym
 ;;   spójnikiem mia³y wstawian± `~' zamiast ` ' po rozwiniêciu.
-;; * Przywróciæ Historia[pl]:?
+;; * Przywróciæ sekcjê Historia[pl]:?
 
 
 
@@ -531,6 +563,10 @@ This is used in `fill-nobreak-predicate'."
 You can set it directly or use the command `tex-magic-space-mode'.")
 (make-variable-buffer-local 'tex-magic-space-mode)
 
+;; Internal tex-magic-space-mode +/- checking designation string for mode line.
+(defvar tex-magic-space-mode-string " ~")
+(make-variable-buffer-local 'tex-magic-space-mode-string)
+
 (defvar tex-magic-space-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map " " 'tex-magic-space)
@@ -574,6 +610,9 @@ Sets `tex-magic-space-do-checking'."
   (setq tex-magic-space-do-checking
 	(if (null arg) (not tex-magic-space-do-checking)
 	  (> (prefix-numeric-value arg) 0)))
+  (if tex-magic-space-do-checking
+      (setq tex-magic-space-mode-string " ~:Chk")
+    (setq tex-magic-space-mode-string " ~"))
   (if tex-magic-space-mode
       (force-mode-line-update)
     (message "Checking tests for tex-magic-space %sctivated."
@@ -589,7 +628,7 @@ it is an XEmacs-compatibility functio in `subr'."
 							   tex-mode)))
   (put 'tex-magic-space-mode :menu-tag "TeX Magic Space")
   (add-minor-mode 'tex-magic-space-mode
-		  (list " ~" '(tex-magic-space-do-checking ":Chk"))
+		  tex-magic-space-mode-string
 		  tex-magic-space-mode-map))
 
 (defun use-define-minor-mode ()
@@ -610,7 +649,7 @@ runs `tex-magic-space-toggle-checking'.
  
 \\<tex-magic-space-mode-map>"
     (memq major-mode '(latex-mode tex-mode)) ; INIT-VALUE
-    (list " ~" '(tex-magic-space-do-checking ":Chk"))
+    tex-magic-space-mode-string
     tex-magic-space-mode-map
     ;; BODY
     (define-key mode-line-mode-menu [tex-magic-space-mode]
