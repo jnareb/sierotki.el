@@ -2,11 +2,11 @@
 
 ;; Copyright (C) 2002  Micha³ Jankowski, Jakub Narêbski
 
-;; Author: Ryszard Kubiak        <rysiek@ipipan.gda.pl>
+;; Author: 	Ryszard Kubiak   <rysiek@ipipan.gda.pl>
 ;;		Micha³ Jankowski <michalj@fuw.edu.pl>
 ;;		Jakub Narêbski   <jnareb@fuw.edu.pl>
 ;; Maintainer: 	Jakub Narebski <jnareb@fuw.edu.pl>
-;; Version: 	2.3.5
+;; Version: 	2.3.5-fix1
 ;; RCS version:	$Revision$
 ;; Date: 	$Date$
 ;; Keywords: 	tex, wp
@@ -381,13 +381,19 @@ In this minor mode `\\[tex-magic-space]' runs the command `tex-magic-space'."
 
 ;; W³±cz TeX Magic Space mode dla znanych trybów (La)TeX-owych
 ;; For AUC TeX
-(eval-after-load "tex"      '(setq tex-magic-space-mode t))
-(eval-after-load "latex"    '(setq tex-magic-space-mode t))
+(add-hook 'TeX-mode-hook   (function (lambda () 
+				       (setq tex-magic-space-mode t))))
+(add-hook 'LaTeX-mode-hook (function (lambda () 
+				       (setq tex-magic-space-mode t))))
 ;; For tex-mode included in Emacs
-(eval-after-load "tex-mode" '(setq tex-magic-space-mode t))
+(add-hook 'tex-mode-hook   (function (lambda () 
+				       (setq tex-magic-space-mode t))))
+(add-hook 'latex-mode-hook (function (lambda () 
+				       (setq tex-magic-space-mode t))))
 ;; For RefTeX
 ;; NOTE: W tej wersji jest to ca³kowicie bezpieczne
-(eval-after-load "reftex"   '(setq tex-magic-space-mode t))
+(add-hook 'reftex-mode-hook (function (lambda () 
+					(setq tex-magic-space-mode t))))
 
 
 ;;;; ======================================================================
