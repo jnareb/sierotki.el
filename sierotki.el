@@ -8,13 +8,11 @@
 ;; Maintainer: Jakub Narêbski <jnareb@fuw.edu.pl>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Sun Jun 25 20:49:08 2006 (7200 CEST)
+;; Last-Updated: Thu Jun 18 21:02:24 2009 (7200 CEST)
 ;;           By: Jakub Narebski
-;;     Update #: 107
+;;     Update #: 109
 ;;
 ;; Version:     2.8.2
-;; RCS Version:	$Revision$
-;; RCS Date:    $Date$
 ;; Keywords:    TeX, wp, convenience
 ;; URL: http://www.emacswiki.org/emacs/sierotki.el
 ;;      http://www.fuw.edu.pl/~jnareb/sierotki.el
@@ -22,8 +20,6 @@
 ;;
 ;; Compatibility: Emacs21, XEmacs21
 
-
-;; $Id$
 
 ;; This file is *NOT* part of GNU Emacs.
 ;; This file is distributed under the same terms as GNU Emacs.
