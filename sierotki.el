@@ -4,13 +4,13 @@
 ;; 
 ;; Authors:    Ryszard Kubiak <rysiek@ipipan.gda.pl>
 ;;             Micha³ Jankowski <michalj@fuw.edu.pl>
-;;             Jakub Narêbski <jnareb@fuw.edu.pl>
-;; Maintainer: Jakub Narêbski <jnareb@fuw.edu.pl>
+;;             Jakub Narêbski <jnareb@gmail.com>
+;; Maintainer: Jakub Narêbski <jnareb@gmail.com>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Thu Jun 18 21:02:24 2009 (7200 CEST)
+;; Last-Updated: Tue Jun 23 17:47:50 2009 (7200 CEST)
 ;;           By: Jakub Narebski
-;;     Update #: 109
+;;     Update #: 110
 ;;
 ;; Version:     2.8.2
 ;; Keywords:    TeX, wp, convenience
