@@ -14,9 +14,8 @@
 ;;
 ;; Version:     2.8.2
 ;; Keywords:    TeX, wp, convenience
-;; URL: http://www.emacswiki.org/emacs/sierotki.el
-;;      http://www.fuw.edu.pl/~jnareb/sierotki.el
-;; EmacsWiki: NonbreakableSpace
+;; URL:         http://www.emacswiki.org/emacs/sierotki.el
+;; EmacsWiki:   NonbreakableSpace
 ;;
 ;; Compatibility: Emacs21, XEmacs21
 
