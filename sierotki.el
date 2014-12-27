@@ -1,11 +1,11 @@
 ;;; sierotki.el --- Introduce tildes after single-letter words
 ;;
-;; Copyright (C) 1999-2006  Micha³ Jankowski, Jakub Narêbski
+;; Copyright (C) 1999-2006  MichaÂ³ Jankowski, Jakub NarÃªbski
 ;; 
 ;; Authors:    Ryszard Kubiak <rysiek@ipipan.gda.pl>
-;;             Micha³ Jankowski <michalj@fuw.edu.pl>
-;;             Jakub Narêbski <jnareb@gmail.com>
-;; Maintainer: Jakub Narêbski <jnareb@gmail.com>
+;;             MichaÂ³ Jankowski <michalj@fuw.edu.pl>
+;;             Jakub NarÃªbski <jnareb@gmail.com>
+;; Maintainer: Jakub NarÃªbski <jnareb@gmail.com>
 ;; Created:    3 Nov 1999
 ;;
 ;; Last-Updated: Tue Jun 23 17:47:50 2009 (7200 CEST)
@@ -78,31 +78,31 @@
 
 ;;; Installation[pl]:
 
-;; Aby u¿yæ tego pakietu, umie¶æ nastêpuj±c± linijkê w swoim pliku .emacs
+;; Aby uÂ¿yÃ¦ tego pakietu, umieÂ¶Ã¦ nastÃªpujÂ±cÂ± linijkÃª w swoim pliku .emacs
 ;;
 ;;    (require 'sierotki)
 ;;
-;; Je¶li nie chcesz go ³adowaæ zanim nie bêdzie potrzebny, mo¿esz u¿yæ
-;; ³adowania na ¿±danie, np. dodaj±c do .emacs nastêpuj±ce linie
+;; JeÂ¶li nie chcesz go Â³adowaÃ¦ zanim nie bÃªdzie potrzebny, moÂ¿esz uÂ¿yÃ¦
+;; Â³adowania na Â¿Â±danie, np. dodajÂ±c do .emacs nastÃªpujÂ±ce linie
 ;;
 ;;    (autoload 'tex-magic-space-mode "sierotki"
 ;;              "TeX Magic Space minor mode" t)
 ;;    (define-key mode-specific-map " " 'tex-magic-space-mode)
 ;;
-;; Wówczas po wci¶niêciu `C-c SPC' zostanie w³±czony TeX Magic Space mode
-;; i zostanie za³adowana reszta funkcji.  Uwaga: przy u¿ywaniu
-;; automatycznego ³adowania ten tryb _nie mo¿e_ byæ automatycznie w³±czany
+;; WÃ³wczas po wciÂ¶niÃªciu `C-c SPC' zostanie wÂ³Â±czony TeX Magic Space mode
+;; i zostanie zaÂ³adowana reszta funkcji.  Uwaga: przy uÂ¿ywaniu
+;; automatycznego Â³adowania ten tryb _nie moÂ¿e_ byÃ¦ automatycznie wÂ³Â±czany
 ;; w trybach LaTeX-owych.
 ;;
-;; Je¶li chcesz by TeX Magic Space mode by³ automatycznie w³±czany
-;; w znanych trybach TeX-owych dodaj nastêpuj±c± linijkê do swojego pliku
+;; JeÂ¶li chcesz by TeX Magic Space mode byÂ³ automatycznie wÂ³Â±czany
+;; w znanych trybach TeX-owych dodaj nastÃªpujÂ±cÂ± linijkÃª do swojego pliku
 ;; .emacs po (require 'sierotki)
 ;;
 ;;    (turn-on-tex-magic-space-in-tex-modes)
 ;;
-;; Je¶li chcesz by Emacs ³ami±c wiersze (`fill-paragraph' i
-;; `auto-fill-mode') nie ³ama³ linii za jednoliterowymi wyrazami
-;; ('sierotkami'), dodaj jedn± z poni¿szych linii do swojego .emacs 
+;; JeÂ¶li chcesz by Emacs Â³amiÂ±c wiersze (`fill-paragraph' i
+;; `auto-fill-mode') nie Â³amaÂ³ linii za jednoliterowymi wyrazami
+;; ('sierotkami'), dodaj jednÂ± z poniÂ¿szych linii do swojego .emacs 
 ;; za (require 'sierotki) 
 ;;
 ;;    (setq fill-nobreak-predicate 'fill-single-letter-word-nobreak-p)
@@ -159,55 +159,55 @@
 ;; as TeX Magic Space mode.  Not shown in modeline.
 
 ;; See also: http://www.emacswiki.org/cgi-bin/wiki/NonbreakableSpace
-;; Documentation and comments: Jakub Narêbski.
+;; Documentation and comments: Jakub NarÃªbski.
 
 
 ;;; Description[pl]:
 
-;; Ten pakiet s³u¿y do dowi±zywania zdefiniowanych wyrazów (domy¶lnie
-;; jednoliterowych spójników) do nastêpuj±cych po nich s³ów za pomoc± znaku
-;; `~' (tyldy), nie³amliwej spacji TeX-owej.  S³u¿y to temu, aby w
-;; dokumentach TeX-owych unikn±æ jednoliterowych spójników na koñcach linii,
-;; co jest wymagane przez polskie (i czeskie) regu³y typograficzne.
+;; Ten pakiet sÂ³uÂ¿y do dowiÂ±zywania zdefiniowanych wyrazÃ³w (domyÂ¶lnie
+;; jednoliterowych spÃ³jnikÃ³w) do nastÃªpujÂ±cych po nich sÂ³Ã³w za pomocÂ± znaku
+;; `~' (tyldy), nieÂ³amliwej spacji TeX-owej.  SÂ³uÂ¿y to temu, aby w
+;; dokumentach TeX-owych uniknÂ±Ã¦ jednoliterowych spÃ³jnikÃ³w na koÃ±cach linii,
+;; co jest wymagane przez polskie (i czeskie) reguÂ³y typograficzne.
 ;;
-;; Pakiet ten dostarcza dwu funkcjonalno¶ci.  Pierwsz± z nich jest
-;; sprawdzenie (istniej±cego) tekstu i zasugerowanie dodania brakuj±cych
-;; tyld.  Jest ona implementowana przez komendê `tex-hard-spaces', za pomoc±
-;; `query-replace-regexp'.  Tê sam± (a nawet rozszerzon±) funkcjonalno¶æ
-;; znale¼æ mo¿na w pakiecie `tildify' (UWAGA: domy¶lne ustawienia w tym
-;; pakiecie s± dostosowane do jêzyka czeskiego).
+;; Pakiet ten dostarcza dwu funkcjonalnoÂ¶ci.  PierwszÂ± z nich jest
+;; sprawdzenie (istniejÂ±cego) tekstu i zasugerowanie dodania brakujÂ±cych
+;; tyld.  Jest ona implementowana przez komendÃª `tex-hard-spaces', za pomocÂ±
+;; `query-replace-regexp'.  TÃª samÂ± (a nawet rozszerzonÂ±) funkcjonalnoÂ¶Ã¦
+;; znaleÂ¼Ã¦ moÂ¿na w pakiecie `tildify' (UWAGA: domyÂ¶lne ustawienia w tym
+;; pakiecie sÂ± dostosowane do jÃªzyka czeskiego).
 ;;
-;; Drug± z funkcjonalno¶ci jest automatyczne wpisywanie tyld po
-;; jednoliterowych spójnikach podczas pisania tekstu (w locie).  Jest ona
-;; implementowana przez komendê `tex-magic-space', któr± nale¿y podpi±æ do
-;; spacji.  Do aktywowania tej funkcjonalno¶ci nale¿y w³±czyæ
-;; `tex-magic-space-mode'.  Po za³adowaniu tego pakietu polecenie to jest
-;; przypisane do `C-c SPC'.  Tryb (minor mode) TeX Magic Space mo¿na
-;; aktualnie w³±czyæ tak¿e z modeline minor mode menu; jest on oznaczany za
-;; pomoc± " ~".  Dodatkowe oznaczenie ":Chk" po " ~" informuje, ¿e
-;; porady/testy s± aktywne.  Testy mo¿na w³±czyæ za pomoc± polecenia
+;; DrugÂ± z funkcjonalnoÂ¶ci jest automatyczne wpisywanie tyld po
+;; jednoliterowych spÃ³jnikach podczas pisania tekstu (w locie).  Jest ona
+;; implementowana przez komendÃª `tex-magic-space', ktÃ³rÂ± naleÂ¿y podpiÂ±Ã¦ do
+;; spacji.  Do aktywowania tej funkcjonalnoÂ¶ci naleÂ¿y wÂ³Â±czyÃ¦
+;; `tex-magic-space-mode'.  Po zaÂ³adowaniu tego pakietu polecenie to jest
+;; przypisane do `C-c SPC'.  Tryb (minor mode) TeX Magic Space moÂ¿na
+;; aktualnie wÂ³Â±czyÃ¦ takÂ¿e z modeline minor mode menu; jest on oznaczany za
+;; pomocÂ± " ~".  Dodatkowe oznaczenie ":Chk" po " ~" informuje, Â¿e
+;; porady/testy sÂ± aktywne.  Testy moÂ¿na wÂ³Â±czyÃ¦ za pomocÂ± polecenia
 ;; `tex-magic-space-toggle-checking' przypisanego do `C-c C-SPC'.
 ;;
-;; Na razie sprawdzanie czy nale¿y wstawiaæ nie³amliwe spacje po
-;; jednoliterowych spójnikach jest w wersji wstêpnej; je¶li chcesz wstawiæ 
-;; ` ' tam gdzie mode wstawia `~' u¿yj `C-q SPC' lub wy³±cz tryb na czas
-;; edycji fragmentu gdzie nie³amliwe spacje nie s± po¿±dane. 
+;; Na razie sprawdzanie czy naleÂ¿y wstawiaÃ¦ nieÂ³amliwe spacje po
+;; jednoliterowych spÃ³jnikach jest w wersji wstÃªpnej; jeÂ¶li chcesz wstawiÃ¦ 
+;; ` ' tam gdzie mode wstawia `~' uÂ¿yj `C-q SPC' lub wyÂ³Â±cz tryb na czas
+;; edycji fragmentu gdzie nieÂ³amliwe spacje nie sÂ± poÂ¿Â±dane. 
 ;;
-;; Funkcjonalno¶æ ta mo¿e byæ automatycznie w³±czana w trybach TeX-owych za
-;; pomoc± dodania odpowiednika `turn-on-tex-magic-space-mode' do odpowiednich
-;; haczyków (zdefiniowanych w zmiennej `tex-magic-space-mode-hooks-list') za
-;; pomoc± polecenia (funkcji) `turn-on-tex-magic-space-in-tex-modes'.
+;; FunkcjonalnoÂ¶Ã¦ ta moÂ¿e byÃ¦ automatycznie wÂ³Â±czana w trybach TeX-owych za
+;; pomocÂ± dodania odpowiednika `turn-on-tex-magic-space-mode' do odpowiednich
+;; haczykÃ³w (zdefiniowanych w zmiennej `tex-magic-space-mode-hooks-list') za
+;; pomocÂ± polecenia (funkcji) `turn-on-tex-magic-space-in-tex-modes'.
 ;;
-;; NOWE: Zosta³y tak¿e zdefiniowane dwie funkcje
+;; NOWE: ZostaÂ³y takÂ¿e zdefiniowane dwie funkcje
 ;; `fill-single-letter-word-nobreak-p' i `fill-tex-magic-space-nobreak-p',
-;; które wstawione jako warto¶æ zmiennej `fill-nobreak-predicate' powoduj±,
-;; ¿e Emacs ³ami±c linie (`M-q' czyli `fill-paragraph', oraz
-;; `auto-fill-mode') nie zostawia samotnych jednoliterowych wyrazów na koñcu
-;; wiersza (sierotek).  Druga z funkcji u¿ywa tego samego testu co  TeX
+;; ktÃ³re wstawione jako wartoÂ¶Ã¦ zmiennej `fill-nobreak-predicate' powodujÂ±,
+;; Â¿e Emacs Â³amiÂ±c linie (`M-q' czyli `fill-paragraph', oraz
+;; `auto-fill-mode') nie zostawia samotnych jednoliterowych wyrazÃ³w na koÃ±cu
+;; wiersza (sierotek).  Druga z funkcji uÂ¿ywa tego samego testu co  TeX
 ;; Magic Space mode.  Nie pokazywane automatycznie w modeline.
 
-;; Zobacz tak¿e: http://www.emacswiki.org/cgi-bin/wiki/NonbreakableSpace
-;; Dokumentacja i komentarze: Jakub Narêbski.
+;; Zobacz takÂ¿e: http://www.emacswiki.org/cgi-bin/wiki/NonbreakableSpace
+;; Dokumentacja i komentarze: Jakub NarÃªbski.
 
 
 
@@ -227,17 +227,17 @@
 
 
 ;;; TODO[pl]:
-;; * Wiecej i lepsze testy sprawdzaj±ce czy u¿ywaæ nie³amliwej spacji, 
+;; * Wiecej i lepsze testy sprawdzajÂ±ce czy uÂ¿ywaÃ¦ nieÂ³amliwej spacji, 
 ;;   np. w komentarzach, tabelach, otoczeniach typu verbatim.
-;; * Zgadywanie czy nale¿y w³±czyæ TeX Magic Space mode na podstawie
-;;   nag³ówka pliku (La)TeX-owego: albo osobne polecenie 'guess-*',
+;; * Zgadywanie czy naleÂ¿y wÂ³Â±czyÃ¦ TeX Magic Space mode na podstawie
+;;   nagÂ³Ã³wka pliku (La)TeX-owego: albo osobne polecenie 'guess-*',
 ;;   albo odpowiednie pliki stylu dla AUCTeX-a: pakiety polski i babel.
-;; * Rozszerzyæ `tex-magic-space' by dowi±zywa³o tak¿e np. `tys.'.
-;; * Dodaæ `tex-magic-space-checking-why' (a la `texmathp-why'), które
-;;   bêdzie podawa³o dlaczego magiczna spacja jest nieaktywna.
-;; * Sprawiæ by skróty których rozwiniêcie koñczy siê jednoliterowym
-;;   spójnikiem mia³y wstawian± `~' zamiast ` ' po rozwiniêciu.
-;; * Przywróciæ sekcjê Historia[pl]:?
+;; * RozszerzyÃ¦ `tex-magic-space' by dowiÂ±zywaÂ³o takÂ¿e np. `tys.'.
+;; * DodaÃ¦ `tex-magic-space-checking-why' (a la `texmathp-why'), ktÃ³re
+;;   bÃªdzie podawaÂ³o dlaczego magiczna spacja jest nieaktywna.
+;; * SprawiÃ¦ by skrÃ³ty ktÃ³rych rozwiniÃªcie koÃ±czy siÃª jednoliterowym
+;;   spÃ³jnikiem miaÂ³y wstawianÂ± `~' zamiast ` ' po rozwiniÃªciu.
+;; * PrzywrÃ³ciÃ¦ sekcjÃª Historia[pl]:?
 
 
 
@@ -278,30 +278,30 @@
 ;; Wersja 1.2 (RCS revision 1.2):
 ;; * Dodano `tex-toggle-magic-space'.
 ;; Wersja 1.3 (RCS revision 1.4):
-;; * Wyra¿enia regularne w zmiennych, a nie zapisane wewn±trz funkcji.
+;; * WyraÂ¿enia regularne w zmiennych, a nie zapisane wewnÂ±trz funkcji.
 ;; Wersja 2.0 (RCS revision 1.6):
 ;; * Nowa implementacja `tex-magic-space'.
 ;; Wersja 2.3 (RCS revision 1.12):
-;; * Pojawi³ siê TeX Magic Space minor mode (przypisany do `C-c SPC').
+;; * PojawiÂ³ siÃª TeX Magic Space minor mode (przypisany do `C-c SPC').
 ;; Wersja 2.4 (RCS revision 1.17):
-;; * Dodane porady i polecenie do ich w³±czana (przypisane do `C-c @'), aby
-;;   `tex-magic-space' pozostawa³a nieaktywna tam gdzie nie trzeba (np.
-;;   w trybie matematycznym wykrywanym za pomoc± `texmathp').
+;; * Dodane porady i polecenie do ich wÂ³Â±czana (przypisane do `C-c @'), aby
+;;   `tex-magic-space' pozostawaÂ³a nieaktywna tam gdzie nie trzeba (np.
+;;   w trybie matematycznym wykrywanym za pomocÂ± `texmathp').
 ;; Wersja 2.5 (RCS revision 1.26):
-;; * Usuniêcie `tex-toggle-magic-space'; u¿yj `tex-magic-space-mode'.
+;; * UsuniÃªcie `tex-toggle-magic-space'; uÂ¿yj `tex-magic-space-mode'.
 ;; Wersja 2.6 (RCS revision 1.31):
-;; * Sprawdzania czy `tex-magic-space' powinno byæ nieaktywne zosta³o
-;;   przepisane za pomoc± instrukcji warunkowej w g³ównej funkcji zamiast
-;;   u¿ywania do tego porad (advice).
+;; * Sprawdzania czy `tex-magic-space' powinno byÃ¦ nieaktywne zostaÂ³o
+;;   przepisane za pomocÂ± instrukcji warunkowej w gÂ³Ã³wnej funkcji zamiast
+;;   uÂ¿ywania do tego porad (advice).
 ;; Wersja 2.7 (RCS revision 1.43, update #61):
-;; * Parametry mode (trybu) ustalalne za pomoc± `customize'.
-;; * Preferuj `tildify-buffer' zamiast w³asnej wersji `tex-hard-spaces'.
+;; * Parametry mode (trybu) ustalalne za pomocÂ± `customize'.
+;; * Preferuj `tildify-buffer' zamiast wÂ³asnej wersji `tex-hard-spaces'.
 ;; * Preferuj `define-minor-mode' zamiast `add-minor-mode' w GNU Emacs.
 ;; Wersja 2.8 (RCS revision 1.46, update #103):
 ;; * Test na sierotki wydzielony do `tex-magic-space-p'.
 ;; * Dodano funkcje `fill-single-letter-word-nobreak-p' 
-;;   i `fill-tex-magic-space-nobreak-p' do u¿ycia jako warto¶æ zmiennej 
-;;   `fill-nobreak-predicate' - równowa¿nik TeX Magic Space dla tekstu.
+;;   i `fill-tex-magic-space-nobreak-p' do uÂ¿ycia jako wartoÂ¶Ã¦ zmiennej 
+;;   `fill-nobreak-predicate' - rÃ³wnowaÂ¿nik TeX Magic Space dla tekstu.
 
 
 
@@ -318,17 +318,17 @@
 
 ;;;; ======================================================================
 ;;;; Add non-breakable spaces in existing document, interactively.
-;;;; Usuwanie sierotek w istniej±cym dokumencie, interaktywne.
+;;;; Usuwanie sierotek w istniejÂ±cym dokumencie, interaktywne.
 
 ;;; Hard spaces by Ryszard Kubiak <rysiek@ipipan.gda.pl>
-;;; Modified by Jakub Narêbski <jnareb@fuw.edu.pl>
+;;; Modified by Jakub NarÃªbski <jnareb@fuw.edu.pl>
 
-;; Zastêpuje znaki odstêpu przez znaki tyldy `~', czyli TeX-ow± nie³amliw±
-;; spacjê, po jednoliterowych [polskich] spójnikach w ca³ym buforze.
-;; Poni¿sza zmienna definiuje wyra¿enie regularne u¿ywane w `tex-hard-spaces'
+;; ZastÃªpuje znaki odstÃªpu przez znaki tyldy `~', czyli TeX-owÂ± nieÂ³amliwÂ±
+;; spacjÃª, po jednoliterowych [polskich] spÃ³jnikach w caÂ³ym buforze.
+;; PoniÂ¿sza zmienna definiuje wyraÂ¿enie regularne uÂ¿ywane w `tex-hard-spaces'
 (if (fboundp 'tildify-buffer)
     ;; use better tildify.el solution
-    ;; u¿yj rozwi±zania z tildify.el
+    ;; uÂ¿yj rozwiÂ±zania z tildify.el
     (progn
       (message "tex-hard-spaces aliased to tildify-buffer")
       (defalias 'tex-hard-spaces 'tildify-buffer))
@@ -342,8 +342,8 @@ Used as first argument to `query-replace-regexp'."
     :type '(regexp)
     :group 'sierotki)
   
-  ;; Zwyk³e `query-replace-regexp', czyli C-M-% dla odpowiedniego
-  ;; wyra¿enia regularnego, zapisanego w `tex-hard-spaces-regexp'
+  ;; ZwykÂ³e `query-replace-regexp', czyli C-M-% dla odpowiedniego
+  ;; wyraÂ¿enia regularnego, zapisanego w `tex-hard-spaces-regexp'
   (defun tex-hard-spaces ()
     "Replace whitespace characters after single-letter word with `~'.
 Replaces whitespace characters following single-letter conjunctions by `~',
@@ -369,14 +369,14 @@ It is implemented using `query-replace-regexp'."
 ;;;; Zapobieganie powstawaniu sierotek 'w locie'
 
 ;;; Magic space by Michal Jankowski <michalj@fuw.edu.pl>
-;;; Modified by Jakub Narêbski <jnareb@fuw.edu.pl>
+;;; Modified by Jakub NarÃªbski <jnareb@fuw.edu.pl>
 
 ;;; ----------------------------------------------------------------------
 ;;; Tests for `tex-magic-space'
 ;;; Testy dla `tex-magic-space'
 
 ;; Didn't work in XEmacs
-;; Nie dzia³a³ w XEmacs
+;; Nie dziaÂ³aÂ³ w XEmacs
 (defun texinverbp ()
   "Determine if point is inside LaTeX \\verb command.
 Returns nil or the pair (POINT-VERB-BEG . POINT-VERB-END) of positions where
@@ -408,7 +408,7 @@ line characters.  Does not work with nested \\verbs."
 
 ;;; ......................................................................
 ;;; Turning on tests for tex-magic-space
-;;; Aktywacja sprawdzania/testów dla tex-magic-space i podobne
+;;; Aktywacja sprawdzania/testÃ³w dla tex-magic-space i podobne
 (defcustom tex-magic-space-do-checking nil
   "*Non-nil if `tex-magic-space' should check `tex-magic-space-tests'.
 Set it to non-nil value if you want TeX Magic Space mode to check
@@ -440,9 +440,9 @@ has non-nil value"
 ;;; On-the-fly tildes insertion
 ;;; Wstawianie tyld w locie
 
-;; UWAGA: [czasami] polskie literki s± traktowane jako koniec s³owa dla 8bit
-;;        tzn. przy u¿yciu `standard-display-european' do ich wprowadzania.
-;;        Bêdê próbowaæ znale¼æ dok³adne warunki wyst±pienia b³êdu.
+;; UWAGA: [czasami] polskie literki sÂ± traktowane jako koniec sÂ³owa dla 8bit
+;;        tzn. przy uÂ¿yciu `standard-display-european' do ich wprowadzania.
+;;        BÃªdÃª prÃ³bowaÃ¦ znaleÂ¼Ã¦ dokÂ³adne warunki wystÂ±pienia bÂ³Ãªdu.
 (defcustom tex-magic-space-regexp "\\<[aeiouwzAEIOUWZ]\\'"
   "*Regular expression which detects single [aeiouwz] for `tex-magic-space'.
 `tex-magic-space' inserts `~' if this expression matches two characters before
@@ -491,7 +491,7 @@ See also: `tex-hard-spaces'"
 	       (some (lambda (f) (and (functionp f) (funcall f))) 
 		     tex-magic-space-tests))
     (when (tex-magic-space-p) 
-      (setq last-command-char ?~))) 
+      (setq last-command-event ?~))) 
   (self-insert-command (or prefix 1)))
 
 (defun debug-tex-magic-space (&optional prefix)
@@ -502,7 +502,7 @@ See also: `tex-hard-spaces'"
 
 ;;; ----------------------------------------------------------------------
 ;;; The TeX Magic Space mode equivalent for filling (word wrap)
-;;; Równowa¿nik TeX Magic Space mode dla automatycznego zawijania linii
+;;; RÃ³wnowaÂ¿nik TeX Magic Space mode dla automatycznego zawijania linii
 
 ;;; see: http://www.emacswiki.org/cgi-bin/wiki/FillParagraph
 ;; It is simplified `fill-french-nobreak-p' from textmodes/fill.el.
@@ -688,8 +688,8 @@ runs `tex-magic-space-toggle-checking'.
 
 
 ;;;; ======================================================================
-;;; Initialization by Jakub Narêbski <jnareb@fuw.edu.pl>
-;;; and Adam Przepiórkowski <adamp_at@at_ipipan.waw.pl>
+;;; Initialization by Jakub NarÃªbski <jnareb@fuw.edu.pl>
+;;; and Adam PrzepiÃ³rkowski <adamp_at@at_ipipan.waw.pl>
 ;;; Inicjalizacja dla zapobiegania powstawaniu sierotek 'w locie'
 
 ;; Set globally `C-c SPC' to `tex-magic-space-mode'
@@ -697,7 +697,7 @@ runs `tex-magic-space-toggle-checking'.
 (define-key mode-specific-map " " 'tex-magic-space-mode)
 
 ;; Turn on TeX Magic Space mode for known (La)TeX modes
-;; W³±cz TeX Magic Space mode dla znanych trybów (La)TeX-owych
+;; WÂ³Â±cz TeX Magic Space mode dla znanych trybÃ³w (La)TeX-owych
 (defmacro tex-magic-space-mode-add-to-hook (hook)
   "Add `turn-on-tex-magic-space-mode' to HOOK."
   `(add-hook ,hook 'turn-on-tex-magic-space-mode))
@@ -723,7 +723,7 @@ variable `tex-magic-space-mode-hooks-list'."
 
 ;;;; ======================================================================
 ;;;; Announce
-;;;; Zakoñczenie
+;;;; ZakoÃ±czenie
 
 (provide 'sierotki)
 
