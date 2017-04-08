@@ -1,23 +1,28 @@
-;;; sierotki.el --- Introduce tildes after single-letter words
+;;; sierotki.el --- Insert nonbreakable space after single-letter words on the fly
 ;;
-;; Copyright (C) 1999-2006  Michał Jankowski, Jakub Narębski
-;; 
+;; Copyright (C) 1999-2017  Michał Jankowski, Jakub Narębski
+;;
+;; Filename:   sierotki.el
+;; Description: Insert nonbreakable space after single-letter words on the fly
 ;; Authors:    Ryszard Kubiak <rysiek@ipipan.gda.pl>
 ;;             Michał Jankowski <michalj@fuw.edu.pl>
 ;;             Jakub Narębski <jnareb@gmail.com>
 ;; Maintainer: Jakub Narębski <jnareb@gmail.com>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Tue Jun 23 17:56:54 2009 (7200 CEST)
+;; Last-Updated: Sat Apr  8 17:56:54 2017 (+0200)
 ;;           By: Jakub Narebski
-;;     Update #: 111
+;;     Update #: 112
 ;;
-;; Version:     2.8.3
+;; Version:     2.8.4
 ;; Keywords:    TeX, wp, convenience
-;; URL:         http://www.emacswiki.org/emacs/sierotki.el
+;; URL:         https://github.com/jnareb/sierotki.el
+;;              http://www.emacswiki.org/emacs/sierotki.el
 ;; EmacsWiki:   NonbreakableSpace
+;; Doc URL:     https://www.emacswiki.org/emacs/NonbreakableSpace
 ;;
 ;; Compatibility: Emacs21, XEmacs21
+;; Compatibility: GNU Emacs: 21.x, 22.x, 23.x, 24.x
 
 
 ;; This file is *NOT* part of GNU Emacs.
