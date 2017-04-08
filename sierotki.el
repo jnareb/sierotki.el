@@ -10,9 +10,9 @@
 ;; Maintainer: Jakub Narębski <jnareb@gmail.com>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Sat Apr  8 17:56:54 2017 (+0200)
+;; Last-Updated: Sat Apr  8 17:59:54 2017 (+0200)
 ;;           By: Jakub Narebski
-;;     Update #: 112
+;;     Update #: 113
 ;;
 ;; Version:     2.8.4
 ;; Keywords:    TeX, wp, convenience
@@ -107,8 +107,8 @@
 ;;
 ;; Jeśli chcesz by Emacs łamiąc wiersze (`fill-paragraph' i
 ;; `auto-fill-mode') nie łamał linii za jednoliterowymi wyrazami
-;; ('sierotkami'), dodaj jedną z poniższych linii do swojego .emacs 
-;; za (require 'sierotki) 
+;; ('sierotkami'), dodaj jedną z poniższych linii do swojego .emacs
+;; za (require 'sierotki)
 ;;
 ;;    (setq fill-nobreak-predicate 'fill-single-letter-word-nobreak-p)
 ;; lub
@@ -194,9 +194,9 @@
 ;; `tex-magic-space-toggle-checking' przypisanego do `C-c C-SPC'.
 ;;
 ;; Na razie sprawdzanie czy należy wstawiać niełamliwe spacje po
-;; jednoliterowych spójnikach jest w wersji wstępnej; jeśli chcesz wstawić 
+;; jednoliterowych spójnikach jest w wersji wstępnej; jeśli chcesz wstawić
 ;; ` ' tam gdzie mode wstawia `~' użyj `C-q SPC' lub wyłącz tryb na czas
-;; edycji fragmentu gdzie niełamliwe spacje nie są pożądane. 
+;; edycji fragmentu gdzie niełamliwe spacje nie są pożądane.
 ;;
 ;; Funkcjonalność ta może być automatycznie włączana w trybach TeX-owych za
 ;; pomocą dodania odpowiednika `turn-on-tex-magic-space-mode' do odpowiednich
@@ -225,14 +225,14 @@
 ;;   and babel.
 ;; * Extend `tex-magic-space' to add tildes also after e.g. 'tys.'
 ;; * Add `tex-magic-space-checking-why' (a la `texmathp-why'), which would
-;;   tell which tests caused magic space to be inactive. 
+;;   tell which tests caused magic space to be inactive.
 ;; * Make the abbreviations, expansion of which ends in single-letter word,
-;;   to have `~' (tilde) instead of ` ' (space) after expanded abbrev. 
+;;   to have `~' (tilde) instead of ` ' (space) after expanded abbrev.
 ;; * Bring back History: section?
 
 
 ;;; TODO[pl]:
-;; * Wiecej i lepsze testy sprawdzające czy używać niełamliwej spacji, 
+;; * Wiecej i lepsze testy sprawdzające czy używać niełamliwej spacji,
 ;;   np. w komentarzach, tabelach, otoczeniach typu verbatim.
 ;; * Zgadywanie czy należy włączyć TeX Magic Space mode na podstawie
 ;;   nagłówka pliku (La)TeX-owego: albo osobne polecenie 'guess-*',
@@ -304,8 +304,8 @@
 ;; * Preferuj `define-minor-mode' zamiast `add-minor-mode' w GNU Emacs.
 ;; Wersja 2.8 (RCS revision 1.46, update #103):
 ;; * Test na sierotki wydzielony do `tex-magic-space-p'.
-;; * Dodano funkcje `fill-single-letter-word-nobreak-p' 
-;;   i `fill-tex-magic-space-nobreak-p' do użycia jako wartość zmiennej 
+;; * Dodano funkcje `fill-single-letter-word-nobreak-p'
+;;   i `fill-tex-magic-space-nobreak-p' do użycia jako wartość zmiennej
 ;;   `fill-nobreak-predicate' - równoważnik TeX Magic Space dla tekstu.
 
 
@@ -466,8 +466,8 @@ word boundary, even when they are word constituents."
 ;; !!! Expand docstring !!!
 ;; !!! Docstring do poprawienia !!!
 (defun tex-magic-space-p ()
-  "Returns true if there should be inserted nonbreakable space."
-  (string-match tex-magic-space-regexp 
+  "Return true if there should be inserted nonbreakable space."
+  (string-match tex-magic-space-regexp
 	   (buffer-substring (max (point-min) (- (point) 2)) (point))))
 
 (defun tex-magic-space (&optional prefix)
@@ -492,11 +492,11 @@ To use it turn on TeX Magic Space minor mode using command
 
 See also: `tex-hard-spaces'"
   (interactive "p")
-  (unless (and tex-magic-space-do-checking 
-	       (some (lambda (f) (and (functionp f) (funcall f))) 
+  (unless (and tex-magic-space-do-checking
+	       (some (lambda (f) (and (functionp f) (funcall f)))
 		     tex-magic-space-tests))
-    (when (tex-magic-space-p) 
-      (setq last-command-char ?~))) 
+    (when (tex-magic-space-p)
+      (setq last-command-char ?~)))
   (self-insert-command (or prefix 1)))
 
 (defun debug-tex-magic-space (&optional prefix)
@@ -621,7 +621,7 @@ Sets `tex-magic-space-do-checking'."
 
 (defun use-add-minor-mode ()
   "Use `add-minor-mode' to create minor mode `tex-magic-space-mode'.
-In XEmacs `add-minor-mode' is compiled Lisp function, in GNU Emacs 
+In XEmacs `add-minor-mode' is compiled Lisp function, in GNU Emacs
 it is an XEmacs-compatibility functio in `subr'."
   (message "Define tex-magic-space-mode using add-minor-mode") ; DEBUG!
   (put 'tex-magic-space-mode :included '(memq major-mode '(latex-mode
@@ -679,7 +679,7 @@ runs `tex-magic-space-toggle-checking'.
 
 
 ;; Define minor mode `tex-magic-space-mode'
-;; Zdefiniuj `tex-magic-space-mode' 
+;; Zdefiniuj `tex-magic-space-mode'
 (if (and (boundp 'running-xemacs) running-xemacs)
     (cond 				; XEmacs
      ((fboundp 'add-minor-mode) (use-add-minor-mode))
