@@ -28,7 +28,7 @@ package this command is bound to the `C-c SPC`.  The minor mode TeX
 Magic Space can be also turned on from the modeline minor mode
 menu.  This mode is denoted by " ~" in the modeline.  The ":Chk"
 after " ~" in the modeline shows that test are enabled.  You can
-enable tests using `tex-magic-space-toggle-checking' command, bound to the
+enable tests using `tex-magic-space-toggle-checking` command, bound to the
 `C-c C-SPC`.
 
 For the time being the tests in `tex-magic-space-tests` are in early beta
