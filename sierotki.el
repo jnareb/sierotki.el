@@ -1,6 +1,6 @@
 ;;; sierotki.el --- Insert nonbreakable space after single-letter words on the fly
 ;;
-;; Copyright (C) 1999-2017  Michał Jankowski, Jakub Narębski
+;; Copyright (C) 1999-2021  Michał Jankowski, Jakub Narębski
 ;;
 ;; Filename:   sierotki.el
 ;; Description: Insert nonbreakable space after single-letter words on the fly
@@ -10,11 +10,7 @@
 ;; Maintainer: Jakub Narębski <jnareb@gmail.com>
 ;; Created:    3 Nov 1999
 ;;
-;; Last-Updated: Sat Apr  8 17:59:54 2017 (+0200)
-;;           By: Jakub Narebski
-;;     Update #: 113
-;;
-;; Version:     2.8.4
+;; Version:     2.8.5
 ;; Keywords:    TeX, wp, convenience
 ;; URL:         https://github.com/jnareb/sierotki.el
 ;;              http://www.emacswiki.org/emacs/sierotki.el
@@ -22,7 +18,7 @@
 ;; Doc URL:     https://www.emacswiki.org/emacs/NonbreakableSpace
 ;;
 ;; Compatibility: Emacs21, XEmacs21
-;; Compatibility: GNU Emacs: 21.x, 22.x, 23.x, 24.x
+;; Compatibility: GNU Emacs: 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 
 
 ;; This file is *NOT* part of GNU Emacs.
