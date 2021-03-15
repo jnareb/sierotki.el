@@ -496,7 +496,7 @@ See also: `tex-hard-spaces'"
 	       (some (lambda (f) (and (functionp f) (funcall f)))
 		     tex-magic-space-tests))
     (when (tex-magic-space-p)
-      (setq last-command-char ?~)))
+      (setq last-command-event ?~)))
   (self-insert-command (or prefix 1)))
 
 (defun debug-tex-magic-space (&optional prefix)
